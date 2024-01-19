@@ -33,11 +33,6 @@
 	url = https://github.com/IMAT3904/googletest.git
 	branch = master
 	update = rebase
-[submodule "vendor/IMGui"]
-	path = vendor/IMGui
-	url = https://github.com/TheCherno/imgui.git
-	branch = master
-	update = rebase
 [submodule "vendor/json"]
 	path = vendor/json
 	url = https://github.com/nlohmann/json.git
@@ -52,4 +47,9 @@
 	path = vendor/STBimage
 	url = https://github.com/nothings/stb.git
 	branch = master
+	update = rebase
+[submodule "vendor/IMGui"]
+	path = vendor/IMGui
+	url = https://github.com/TheCherno/imgui.git
+	branch = docking
 	update = rebase
