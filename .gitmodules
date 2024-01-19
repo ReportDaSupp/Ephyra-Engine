@@ -43,13 +43,13 @@
 	url = https://github.com/nothings/stb.git
 	branch = master
 	update = rebase
-[submodule "vendor/assimp"]
-	path = vendor/assimp
-	url = https://github.com/assimp/assimp.git
-	branch = master
-	update = rebase
 [submodule "vendor/enTT"]
 	path = vendor/enTT
 	url = https://github.com/skypjack/entt.git
+	branch = master
+	update = rebase
+[submodule "vendor/assimp"]
+	path = vendor/assimp
+	url = https://github.com/IMAT3905/assimp.git
 	branch = master
 	update = rebase

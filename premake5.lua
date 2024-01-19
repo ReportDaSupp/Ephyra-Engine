@@ -21,15 +21,15 @@ project "Ephyra"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("build/" .. outputdir .. "/%{prj.name}")
 	
-	pchheader "engine_pch.h"
-	pchsource "ephyra/precompiled/engine_pch.cpp"
+	pchheader "ephyra_pch.h"
+	pchsource "ephyra/precompiled/ephyra_pch.cpp"
 	
 	files
 	{
 		"%{prj.name}/enginecode/**.h",
 		"%{prj.name}/enginecode/**.cpp",
-		"ephyra/precompiled/engine_pch.h",
-		"ephyra/precompiled/engine_pch.cpp"
+		"ephyra/precompiled/ephyra_pch.h",
+		"ephyra/precompiled/ephyra_pch.cpp"
 	}
 
 	includedirs
@@ -75,6 +75,53 @@ project "Ephyra"
 		runtime "Release"
 		optimize "On"
 
+project "ResourceManager"
+	location "resourceManager"
+	kind "StaticLib"
+	language "C++"
+	staticruntime "off"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("build/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"%{prj.name}/include/**.h",
+		"%{prj.name}/src/**.cpp",
+	}
+
+	includedirs
+	{
+		"%{prj.name}/include",
+		"vendor/spdlog/include",
+		"vendor/glfw/include",
+		"vendor/Glad/include",
+		"vendor/glm/",
+		"vendor/STBimage",
+		"vendor/freetype2/include",
+		"vendor/json/single_include/nlohmann",
+		"vendor/IMGui"
+	}
+
+	filter "system:windows"
+		cppdialect "C++17"
+		systemversion "latest"
+
+		defines
+		{
+			"NG_PLATFORM_WINDOWS"
+		}
+
+	filter "configurations:Debug"
+		defines "NG_DEBUG"
+		runtime "Debug"
+		symbols "On"
+
+	filter "configurations:Release"
+		defines "NG_RELEASE"
+		runtime "Release"
+		optimize "On"
+
 project "Sandbox"
 	location "sandbox"
 	kind "ConsoleApp"
@@ -97,6 +144,7 @@ project "Sandbox"
 		"ephyra/enginecode/include/independent",
 		"ephyra/enginecode/include/",
 		"ephyra/precompiled/",
+		"resourceManager/include",
 		"vendor/glfw/include",
 		"vendor/glm/",
 		"vendor/spdlog/include",
