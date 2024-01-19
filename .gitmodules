@@ -1,3 +1,13 @@
+[submodule "vendor/enTT"]
+	path = vendor/enTT
+	url = https://github.com/skypjack/entt.git
+	branch = master
+	update = rebase
+[submodule "vendor/assimp"]
+	path = vendor/assimp
+	url = https://github.com/IMAT3905/assimp.git
+	branch = master
+	update = rebase
 [submodule "vendor/freetype2"]
 	path = vendor/freetype2
 	url = https://github.com/IMAT3904/simplifiedFreetype2.git
@@ -26,7 +36,7 @@
 [submodule "vendor/IMGui"]
 	path = vendor/IMGui
 	url = https://github.com/TheCherno/imgui.git
-	branch = docking
+	branch = master
 	update = rebase
 [submodule "vendor/json"]
 	path = vendor/json
@@ -41,15 +51,5 @@
 [submodule "vendor/STBimage"]
 	path = vendor/STBimage
 	url = https://github.com/nothings/stb.git
-	branch = master
-	update = rebase
-[submodule "vendor/enTT"]
-	path = vendor/enTT
-	url = https://github.com/skypjack/entt.git
-	branch = master
-	update = rebase
-[submodule "vendor/assimp"]
-	path = vendor/assimp
-	url = https://github.com/IMAT3905/assimp.git
 	branch = master
 	update = rebase
