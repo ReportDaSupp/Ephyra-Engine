@@ -28,11 +28,6 @@
 	url = https://github.com/g-truc/glm.git
 	branch = master
 	update = rebase
-[submodule "vendor/GoogleTest"]
-	path = vendor/GoogleTest
-	url = https://github.com/IMAT3904/googletest.git
-	branch = master
-	update = rebase
 [submodule "vendor/json"]
 	path = vendor/json
 	url = https://github.com/nlohmann/json.git
