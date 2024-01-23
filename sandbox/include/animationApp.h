@@ -1,10 +1,10 @@
 #pragma once
 
 // entry point
-#include "include/independent/core/entrypoint.h"
+#include "include/independent/entrypoint.h"
 #include "ephyra.h"
 
-class animationApp : public Engine::Application
+class animationApp : public Ephyra::Application
 {
 public:
 	animationApp();

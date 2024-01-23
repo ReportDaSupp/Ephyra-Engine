@@ -11,7 +11,7 @@ animationApp::~animationApp()
 
 }
 
-Engine::Application* Engine::startApplication()
+Ephyra::Application* Ephyra::startApplication()
 {
 	return new animationApp();
 }

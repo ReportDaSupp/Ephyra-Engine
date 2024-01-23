@@ -10,7 +10,7 @@
  * \brief Function to start the application.
  * \return A pointer to the application object.
  */
-extern Engine::Application* Engine::startApplication();
+extern Ephyra::Application* Ephyra::startApplication();
 
 /**
  * \brief The main function of the application.
@@ -20,7 +20,7 @@ extern Engine::Application* Engine::startApplication();
  */
 int main(int argc, char** argv)
 {
-	auto application = Engine::startApplication();
+	auto application = Ephyra::startApplication();
 	application->run();
 	delete application;
 
