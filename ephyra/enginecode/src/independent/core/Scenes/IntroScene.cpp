@@ -157,7 +157,7 @@ namespace Ephyra
 							if (!gDataStore.Lights.empty())
 							{
 								ImGui::SliderInt("Select Light", &gDataStore.selectedLight, 1, gDataStore.Lights.size());
-								if(ImGui::DragFloat3("Light Position", &gDataStore.Lights[gDataStore.selectedLight - 1].lightPos.x), 0.1f)
+								if(ImGui::DragFloat3("Light Position", &gDataStore.Lights[gDataStore.selectedLight - 1].lightPos.x, 0.1f))
 								{
 									InitLighting();
 								}
@@ -169,8 +169,8 @@ namespace Ephyra
 							if (ImGui::Button("Add Light"))
 							{
 								PointLight temp;
-								temp.lightPos = glm::vec3(0, 0, 0);
-								temp.lightColor = glm::vec3(1, 1, 1);
+								temp.lightPos = glm::vec3(0.f, 0.f, 0.f);
+								temp.lightColor = glm::vec3(16.f, 16.f, 16.f);
 								gDataStore.Lights.push_back(temp);
 								InitLighting();
 							}
@@ -312,6 +312,13 @@ namespace Ephyra
 
 	void IntroScene::InitLighting()
 	{
+		if (gDataStore.Lights.empty())
+		{
+			PointLight temp;
+			temp.lightPos = glm::vec3(0, 0, 0);
+			temp.lightColor = glm::vec3(16.f, 16.f, 16.f);
+			gDataStore.Lights.push_back(temp);
+		}
 		RendererCommon::lightPos.clear();
 		RendererCommon::lightColor.clear();
 		// Initialize Lights
