@@ -179,7 +179,6 @@ project "Sandbox"
 group "Vendor"
 
 	include "vendor/glfw"
-	include "vendor/googletest"
 	include "vendor/Glad"
 	include "vendor/freetype2"
 	include "vendor/IMGui"
