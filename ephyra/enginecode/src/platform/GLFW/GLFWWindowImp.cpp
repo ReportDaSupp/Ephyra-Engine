@@ -1,12 +1,14 @@
 /** \file GLFWWindowImp.cpp */
 
-#include "ephyra_pch.h"
-#include "platform/GLFW/GLFWWindowImp.h"
-#include "platform/GLFW/GLFW_OpenGl_GC.h"
-#include "systems/log.h"
-#include <core/globalProperties.h>
+#include "Ephyra_pch.h"
 
-namespace Ephyra
+#include "Platform/GLFW/GLFWWindowImp.h"
+#include "Platform/GLFW/GLFW_OpenGl_GC.h"
+#include "Core/Systems/Utility/Log.h"
+#include "Core/Initialization/GlobalProperties.h"
+#include "stb_image.h"
+
+namespace Engine
 {
 
 #ifdef NG_PLATFORM_WINDOWS
@@ -47,6 +49,18 @@ namespace Ephyra
 		m_graphicsContext->init();
 
 		glfwSetWindowUserPointer(m_native, static_cast<void*>(&m_eventHandler));
+
+		GLFWimage images[1];
+		images[0].pixels = stbi_load("./assets/sprites/EphyraLogo.png", &images[0].width, &images[0].height, 0, 4); // Use STB image library to load the icon
+		if (images[0].pixels) {
+			glfwSetWindowIcon(m_native, 1, images);
+			//stbi_image_free(images[0].pixels);
+		}
+		else {
+			// Handle error
+		}
+
+
 
 		// GLFW Window Callbacks
 

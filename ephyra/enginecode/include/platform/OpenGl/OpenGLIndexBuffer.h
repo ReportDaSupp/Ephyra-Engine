@@ -1,9 +1,9 @@
 /** \file OpenGLIndexBuffer.h */
 #pragma once
 
-#include "rendering/indexBuffer.h"
+#include "Core/Rendering/API/Buffers/IndexBuffer.h"
 
-namespace Ephyra
+namespace Engine 
 {
 	class OpenGLIndexBuffer : public IndexBuffer
 	{

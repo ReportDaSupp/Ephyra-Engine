@@ -1,9 +1,9 @@
 /** \file OpenGLTexture.h */
 #pragma once
 
-#include "rendering/texture.h"
+#include "Core/Rendering/API/Textures/Texture.h"
 
-namespace Ephyra
+namespace Engine
 {
 	class OpenGLTexture : public Texture
 	{

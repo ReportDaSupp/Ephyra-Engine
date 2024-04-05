@@ -38,6 +38,7 @@ project "Ephyra"
 		"%{prj.name}/enginecode/include/independent",
 		"%{prj.name}/enginecode/include/",
 		"%{prj.name}/precompiled/",
+		"vendor/assimp/include",
 		"vendor/spdlog/include",
 		"vendor/glfw/include",
 		"vendor/Glad/include",
@@ -45,64 +46,21 @@ project "Ephyra"
 		"vendor/STBimage",
 		"vendor/freetype2/include",
 		"vendor/json/single_include/nlohmann",
-		"vendor/IMGui"
+		"vendor/enTT",
+		"vendor/soLoud/include",
+		"vendor/react3d/include"
 	}
 	
 	links 
 	{
+		"Assimp",
 		"GLFW",
 		"Glad",
 		"Freetype",
-		"IMGui"
+		"SoLoud",
+		"ReactPhysics3d"
 	}
 	
-	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "latest"
-
-		defines
-		{
-			"NG_PLATFORM_WINDOWS"
-		}
-
-	filter "configurations:Debug"
-		defines "NG_DEBUG"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		defines "NG_RELEASE"
-		runtime "Release"
-		optimize "On"
-
-project "ResourceManager"
-	location "resourceManager"
-	kind "StaticLib"
-	language "C++"
-	staticruntime "off"
-
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("build/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		"%{prj.name}/include/**.h",
-		"%{prj.name}/src/**.cpp",
-	}
-
-	includedirs
-	{
-		"%{prj.name}/include",
-		"vendor/spdlog/include",
-		"vendor/glfw/include",
-		"vendor/Glad/include",
-		"vendor/glm/",
-		"vendor/STBimage",
-		"vendor/freetype2/include",
-		"vendor/json/single_include/nlohmann",
-		"vendor/IMGui"
-	}
-
 	filter "system:windows"
 		cppdialect "C++17"
 		systemversion "latest"
@@ -141,15 +99,19 @@ project "Sandbox"
 	{
 		"%{prj.name}/include",
 		"ephyra/enginecode/",
-		"ephyra/enginecode/include/independent",
+		"ephyra/enginecode/include/Core",
 		"ephyra/enginecode/include/",
 		"ephyra/precompiled/",
-		"resourceManager/include",
+		"vendor/assimp/include",
 		"vendor/glfw/include",
+		"vendor/Glad/include",
 		"vendor/glm/",
 		"vendor/spdlog/include",
+		"vendor/freetype2/include",
 		"vendor/json/single_include/nlohmann",
-		"vendor/IMGui"
+		"vendor/enTT",
+		"vendor/soLoud/include",
+		"vendor/react3d/include"
 	}
 
 	links
@@ -179,6 +141,9 @@ project "Sandbox"
 group "Vendor"
 
 	include "vendor/glfw"
+	include "vendor/googletest"
 	include "vendor/Glad"
 	include "vendor/freetype2"
-	include "vendor/IMGui"
+	include "vendor/Assimp"
+	include "vendor/soLoud"
+	include "vendor/react3d"

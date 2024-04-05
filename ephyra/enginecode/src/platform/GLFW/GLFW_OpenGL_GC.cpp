@@ -1,14 +1,16 @@
 /** \file GLFW_OpenGL_GC.cpp */
 
-#include "ephyra_pch.h"
+#include "Ephyra_pch.h"
+
+
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "platform/GLFW/GLFW_OpenGl_GC.h"
-#include "systems/log.h"
+#include "Platform/GLFW/GLFW_OpenGl_GC.h"
+#include "Core/Systems/Utility/Log.h"
 
-namespace Ephyra
+namespace Engine
 {
 
 	void errorCallback(GLenum source,
@@ -22,7 +24,7 @@ namespace Ephyra
 
 	}
 
-	void Ephyra::GLFW_OpenGL_GC::init()
+	void Engine::GLFW_OpenGL_GC::init()
 	{
 		glfwMakeContextCurrent(m_window);
 		auto result = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
@@ -61,7 +63,7 @@ namespace Ephyra
 
 	}
 
-	void Ephyra::GLFW_OpenGL_GC::swapBuffers()
+	void Engine::GLFW_OpenGL_GC::swapBuffers()
 	{
 		glfwSwapBuffers(m_window);
 	}

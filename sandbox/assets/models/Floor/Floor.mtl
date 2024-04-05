@@ -1,0 +1,18 @@
+# File produced by Open Asset Import Library (http://www.assimp.sf.net)
+# (assimp v5.0.0)
+
+newmtl Cube
+Kd 0.60000002 0.60000002 0.60000002
+Ka 0 0 0
+Ks 0 0 0
+Ke 0 0 0
+Tf 1 1 1
+d 1
+Ni 1
+illum 1
+map_Kd Textures/Albedo.jpg
+map_Ka Textures/AO.jpg
+map_Ks Textures/Roughness.jpg
+map_Bump Textures/Normal.jpg
+disp Textures/Displacement.jpg
+

@@ -1,9 +1,9 @@
 /** \file OpenGLIndirectBuffer.h */
 #pragma once
 
-#include "rendering/indirectBuffer.h"
+#include "Core/Rendering/API/Buffers/IndirectBuffer.h"
 
-namespace Ephyra
+namespace Engine
 {
 	class OpenGLIndirectBuffer : public IndirectBuffer
 	{

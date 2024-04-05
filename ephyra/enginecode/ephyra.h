@@ -1,17 +1,13 @@
 #pragma once
 
-#include "core/application.h"
-#include "systems/log.h"
-#include "core/timer.h"
-#include "systems/randomNumGen.h"
-#include "events/events.h"
-#include "core/window.h"
-#include "core/inputPoller.h"
-#include "systems/cameraFPS.h"
-#include "platform/GLFW/GLFWSystem.h"
+#include "Core/Initialization/Application.h"
+#include "Core/Initialization/Window.h"
+#include "Core/Systems/Utility/Log.h"
+#include "Core/Systems/Utility/Timer.h"
+#include "Core/Systems/Events/Events.h"
+#include "Core/Systems/Events/InputPoller.h"
+#include "Core/Resources/Utility/CameraFPS.h"
+#include "Platform/GLFW/GLFWSystem.h"
 
 #include <functional>
 #include <memory>
-
-
-

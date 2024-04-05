@@ -1,9 +1,9 @@
 /** \file OpenGLShader.h */
 #pragma once
 
-#include "rendering/shader.h"
+#include "Core/Rendering/API/Shaders/Shader.h"
 
-namespace Ephyra
+namespace Engine
 {
 	class OpenGLShader : public Shader
 	{
@@ -28,7 +28,8 @@ namespace Ephyra
 
 	private:
 		uint32_t m_OpenGL_ID;
-		void compileAndLink(const char* vertexShaderSrc, const char* fragmentShaderSrc);
+		void OpenGLShader::compileAndLink(const char* vertexShaderSrc, const char* fragmentShaderSrc);
+		void OpenGLShader::checkCompileErrors(uint32_t shader, std::string type);
 
 	};
 }

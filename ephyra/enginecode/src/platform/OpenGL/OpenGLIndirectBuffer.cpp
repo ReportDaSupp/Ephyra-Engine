@@ -1,10 +1,10 @@
 /** \file OpenGLIndirectBuffer.cpp */
 
-#include "ephyra_pch.h"
-#include "platform/OpenGl/OpenGLIndirectBuffer.h"
+#include "Ephyra_pch.h"
+#include "Platform/OpenGl/OpenGLIndirectBuffer.h"
 #include <glad/glad.h>
 
-namespace Ephyra
+namespace Engine
 {
 
 

@@ -1,9 +1,9 @@
 /** \file OpenGLVertexBuffer.h */
 #pragma once
 
-#include "rendering/vertexBuffer.h"
+#include "Core/Rendering/API/Buffers/VertexBuffer.h"
 
-namespace Ephyra
+namespace Engine
 {
 	class OpenGLVertexBuffer : public VertexBuffer
 	{

@@ -1,14 +1,14 @@
 /** \file GLFW_OpenGL_GC.h */
 #pragma once
 
-#include "core/graphicsContext.h"
+#include "Core/Initialization/GraphicsContext.h"
 
-namespace Ephyra
+namespace Engine
 {
 	class GLFW_OpenGL_GC : public GraphicsContext
 	{
 	public:
-		GLFW_OpenGL_GC(GLFWwindow* win) : m_window(win) {}
+		GLFW_OpenGL_GC(GLFWwindow* win) : m_window(win) {};
 		virtual void init() override; //!< Init the graphics context for window api
 		virtual void swapBuffers() override; //!< Swap front and back buffers (Double Buffering)
 	private:

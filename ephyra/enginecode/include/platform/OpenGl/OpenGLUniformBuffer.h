@@ -1,9 +1,9 @@
 /** \file OpenGLUniformBuffer */
 #pragma once
 
-#include "rendering/uniformBuffer.h"
+#include "Core/Rendering/API/Buffers/UniformBuffer.h"
 
-namespace Ephyra
+namespace Engine
 {
 	class OpenGLUniformBuffer : public UniformBuffer
 	{

@@ -1,13 +1,3 @@
-[submodule "vendor/enTT"]
-	path = vendor/enTT
-	url = https://github.com/skypjack/entt.git
-	branch = master
-	update = rebase
-[submodule "vendor/assimp"]
-	path = vendor/assimp
-	url = https://github.com/IMAT3905/assimp.git
-	branch = master
-	update = rebase
 [submodule "vendor/freetype2"]
 	path = vendor/freetype2
 	url = https://github.com/IMAT3904/simplifiedFreetype2.git
@@ -43,8 +33,36 @@
 	url = https://github.com/nothings/stb.git
 	branch = master
 	update = rebase
-[submodule "vendor/IMGui"]
-	path = vendor/IMGui
-	url = https://github.com/TheCherno/imgui.git
-	branch = docking
+[submodule "vendor/assimp"]
+	path = vendor/assimp
+	url = https://github.com/IMAT3905/assimp.git
+	branch = master
 	update = rebase
+[submodule "vendor/box2d"]
+	path = vendor/box2d
+	url = https://github.com/IMAT3905/box2d.git
+	branch = master
+	update = rebase
+[submodule "vendor/lua"]
+	path = vendor/lua
+	url = https://github.com/IMAT3905/lua.git
+	branch = master
+	update = rebase
+[submodule "vendor/react3d"]
+	path = vendor/react3d
+	url = https://github.com/IMAT3905/reactphysics3d.git
+	branch = master
+	update = rebase
+[submodule "vendor/enTT"]
+	path = vendor/enTT
+	url = https://github.com/skypjack/entt.git
+	branch = master
+	update = rebase
+[submodule "vendor/luaBridge"]
+	path = vendor/luaBridge
+	url = https://github.com/vinniefalco/LuaBridge.git
+	branch = master
+	update = rebase
+[submodule "vendor/soLoud"]
+	path = vendor/soLoud
+	url = https://github.com/IMAT3905/soloud.git

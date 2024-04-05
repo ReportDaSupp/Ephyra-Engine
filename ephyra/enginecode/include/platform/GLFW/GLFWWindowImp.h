@@ -1,11 +1,11 @@
 /** \file GLFWWindowImp.h */
 #pragma once
 
-#include "core/window.h"
+#include "Core/Initialization/Window.h"
 
 #include <GLFW/glfw3.h>
 
-namespace Ephyra
+namespace Engine
 {
 	/** \class GlfWWindowImp 
 	*	Implementation of GLFW Window

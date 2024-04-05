@@ -1,11 +1,12 @@
 /** \file OpenGLUniformBuffer.cpp */
 
-#include "ephyra_pch.h"
-#include "platform/OpenGl/OpenGLUniformBuffer.h"
-#include <glad/glad.h>
-#include "systems/log.h"
+#include "Ephyra_pch.h"
 
-namespace Ephyra {
+#include "Platform/OpenGl/OpenGLUniformBuffer.h"
+#include <glad/glad.h>
+#include "Core/Systems/Utility/Log.h"
+
+namespace Engine {
 
 	uint32_t OpenGLUniformBuffer::s_blockNumber = 0;
 	OpenGLUniformBuffer::OpenGLUniformBuffer(const uniformBufferLayout& layout)

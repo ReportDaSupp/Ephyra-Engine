@@ -1,10 +1,10 @@
 /** \file OpenGLIndexBuffer.cpp */
 
-#include "ephyra_pch.h"
+#include "Ephyra_pch.h"
 #include <glad/glad.h>
-#include "platform/OpenGl/OpenGLIndexBuffer.h"
+#include "Platform/OpenGl/OpenGLIndexBuffer.h"
 
-namespace Ephyra
+namespace Engine
 {
 	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count) : m_count(count)
 	{

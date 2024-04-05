@@ -1,18 +1,20 @@
 /** \file OpenGLShader.cpp */
 
-#include "ephyra_pch.h"
-#include "platform/OpenGl/OpenGLTexture.h"
+#include "Ephyra_pch.h"
+#include "Platform/OpenGl/OpenGLTexture.h"
 #include <glad/glad.h>
-#include "systems/log.h"
+#include "Core/Systems/Utility/Log.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-namespace Ephyra
+namespace Engine
 {
 
 	OpenGLTexture::OpenGLTexture(const char* filepath)
 	{
+		m_filepath = filepath;
+
 		int width, height, channels;
 		unsigned char* data = stbi_load(filepath, &width, &height, &channels, 0);
 
@@ -39,6 +41,8 @@ namespace Ephyra
 		glBindTexture(GL_TEXTURE_2D, m_OpenGl_ID);
 		if (data)
 		{
+			if (m_channels == 0) glTexSubImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, data);
+			if (m_channels == 1) glTextureSubImage2D(m_OpenGl_ID, 0.f, xOffset, yOffset, width, height, GL_RED, GL_UNSIGNED_BYTE, data);
 			if (m_channels == 3) glTextureSubImage2D(m_OpenGl_ID, 0.f, xOffset, yOffset, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 			else if (m_channels == 4) glTextureSubImage2D(m_OpenGl_ID, 0.f, xOffset, yOffset, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		}
@@ -46,7 +50,6 @@ namespace Ephyra
 
 	void OpenGLTexture::load(TextureUnitManager& TextUM, uint32_t& unit)
 	{
-		//TextUM.getUnit(m_OpenGl_ID, unit);
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(GL_TEXTURE_2D, m_OpenGl_ID);
 	}
@@ -56,18 +59,32 @@ namespace Ephyra
 		glGenTextures(1, &m_OpenGl_ID);
 		glBindTexture(GL_TEXTURE_2D, m_OpenGl_ID);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		if (channels == 0) 
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+			
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, data);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		}
+		else
+		{	
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		if (channels == 3) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		else if (channels == 4) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		else return;
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			if (channels == 1) glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+			else if (channels == 3) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			else if (channels == 4) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			else return;
+		}
 		glGenerateMipmap(GL_TEXTURE_2D);
-
-		//stbi_image_free(data);
 
 		m_width = width;
 		m_height = height;

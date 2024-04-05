@@ -1,12 +1,12 @@
 /** \file GLFWSystem.h */
 #pragma once
 
-#include "systems/system.h"
-#include "systems/log.h"
+#include "Core/Systems/Utility/System.h"
+#include "Core/Systems/Utility/Log.h"
 
 #include <GLFW/glfw3.h>
 
-namespace Ephyra
+namespace Engine
 {
 	class GLFWSystem : public System
 	{

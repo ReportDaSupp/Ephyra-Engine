@@ -1,12 +1,12 @@
 /** \file OpenGLVertexArray.cpp */
 
-#include "ephyra_pch.h"
+#include "Ephyra_pch.h"
 
 #include <glad/glad.h>
 #include "platform/OpenGL/OpenGLVertexArray.h"
-#include "systems/log.h"
+#include "Core/Systems/Utility/Log.h"
 
-namespace Ephyra
+namespace Engine
 {
 	namespace SDT
 	{

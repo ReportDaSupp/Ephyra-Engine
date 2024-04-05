@@ -1,9 +1,9 @@
 /** \file OpenGLVertexArray.h */
 #pragma once
 
-#include "rendering/vertexArray.h"
+#include "Core/Rendering/API/Buffers/VertexArray.h"
 
-namespace Ephyra
+namespace Engine
 {
 	class OpenGLVertexArray : public VertexArray
 	{

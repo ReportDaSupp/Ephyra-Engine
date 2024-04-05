@@ -1,10 +1,11 @@
 /** \file OpenGLVertexBuffer.cpp */
 
-#include "ephyra_pch.h"
-#include <glad/glad.h>
-#include "platform/OpenGl/OpenGLVertexBuffer.h"
+#include "Ephyra_pch.h"
 
-namespace Ephyra
+#include <glad/glad.h>
+#include "Platform/OpenGl/OpenGLVertexBuffer.h"
+
+namespace Engine
 {
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(void* vertices, uint32_t size, vertexBufferLayout layout) : m_layout(layout)

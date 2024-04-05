@@ -1,0 +1,82 @@
+{
+    "entities": [
+        {
+            "BoxColliderComponent": {
+                "HalfExtents": [
+                    88.0,
+                    1.0,
+                    68.0
+                ]
+            },
+            "MeshRendererComponent": {
+                "FilePath": [
+                    "./assets/models/Floor/Floor.obj"
+                ]
+            },
+            "RigidBodyComponent": {
+                "BodyType": [
+                    0
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Floor"
+                ],
+                "Type": [
+                    2
+                ]
+            },
+            "TransformComponent": {
+                "Euler": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "Scale": [
+                    176.0,
+                    1.0,
+                    136.0
+                ],
+                "Translation": [
+                    0.0,
+                    28.799999237060547,
+                    0.0
+                ]
+            },
+            "id": 0
+        },
+        {
+            "EmmissiveComponent": {
+                "Color": [
+                    30.0,
+                    1.0,
+                    10.0
+                ],
+                "Position": [
+                    0.0,
+                    2.0,
+                    0.0
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Light1"
+                ],
+                "Type": [
+                    3
+                ]
+            },
+            "id": 1
+        }
+    ]
+}

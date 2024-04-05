@@ -1,16 +1,16 @@
 /** \file OpenGLShader.cpp */
 
-#include "ephyra_pch.h"
+#include "Ephyra_pch.h"
 
-#include "platform/OpenGl/OpenGLShader.h"
+#include "Platform/OpenGl/OpenGLShader.h"
 #include <glad/glad.h>
 #include <fstream>
-#include "systems/log.h"
+#include "Core/Systems/Utility/Log.h"
 #include <string>
 #include <array>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace Ephyra
+namespace Engine
 {
 	OpenGLShader::OpenGLShader(const char* vertexFilepath, const char* fragmentFilepath)
 	{
@@ -47,8 +47,8 @@ namespace Ephyra
 
 	OpenGLShader::OpenGLShader(const char* filepath)
 	{
-		enum Region {None = -1, Vertex = 0, Fragment, Geometry, TesselationControl, TesselationEvaluation, Compute};
-
+		enum Region { None = -1, Vertex = 0, Fragment, Geometry, TesselationControl, TesselationEvaluation, Compute };
+		bool v = false; bool f = false; bool g = false; bool tc = false; bool te = false; bool c = false;
 		std::string line;
 		std::array<std::string, Region::Compute + 1> src;
 		uint32_t region = Region::None;
@@ -58,26 +58,102 @@ namespace Ephyra
 		if (handle.is_open())
 		{
 
-			while (getline(handle, line)) 
-			{ 
-				if (line.find("#region Vertex") != std::string::npos) { region = Region::Vertex; continue; };
-				if (line.find("#region Fragment") != std::string::npos) { region = Region::Fragment; continue; };
-				if (line.find("#region Geometry") != std::string::npos) { region = Region::Geometry; continue; };
-				if (line.find("#region TesselationControl") != std::string::npos) { region = Region::TesselationControl; continue; };
-				if (line.find("#region TesselationEvaluation") != std::string::npos) { region = Region::TesselationEvaluation; continue; };
-				if (line.find("#region Compute") != std::string::npos) { region = Region::Compute; continue; };
-				if (region != Region::None) src[region] += (line+ "\n");
+			while (getline(handle, line))
+			{
+				if (line.find("#region Vertex") != std::string::npos) { region = Region::Vertex; v = true; continue; };
+				if (line.find("#region Fragment") != std::string::npos) { region = Region::Fragment; f = true; continue; };
+				if (line.find("#region Geometry") != std::string::npos) { region = Region::Geometry; g = true; continue; };
+				if (line.find("#region TesselationControl") != std::string::npos) { region = Region::TesselationControl; tc = true; continue; };
+				if (line.find("#region TesselationEvaluation") != std::string::npos) { region = Region::TesselationEvaluation; te = true; continue; };
+				if (line.find("#region Compute") != std::string::npos) { region = Region::Compute; c = true; continue; };
+				if (region != Region::None) src[region] += (line + "\n");
 			}
 
 		}
 		else
 		{
-			Log::error("Could not open shader source: {0}", filepath);
 			return;
 		}
 		handle.close();
 
-		compileAndLink(src[Region::Vertex].c_str(), src[Region::Fragment].c_str());
+		const char* vShaderCode = src[Region::Vertex].c_str();
+		const char* gShaderCode = src[Region::Geometry].c_str();
+		const char* fShaderCode = src[Region::Fragment].c_str();
+		const char* tcShaderCode = src[Region::TesselationControl].c_str();
+		const char* teShaderCode = src[Region::TesselationEvaluation].c_str();
+		const char* cShaderCode = src[Region::Compute].c_str();
+
+		// 2. compile shaders
+		unsigned int vertex, fragment, geometry, tesselationControl, tesselationEvaluation, compute;
+		if (v)
+		{
+			// vertex shader
+			vertex = glCreateShader(GL_VERTEX_SHADER);
+			glShaderSource(vertex, 1, &vShaderCode, NULL);
+			glCompileShader(vertex);
+			checkCompileErrors(vertex, "VERTEX");
+		}
+		if (f)
+		{
+			// fragment Shader
+			fragment = glCreateShader(GL_FRAGMENT_SHADER);
+			glShaderSource(fragment, 1, &fShaderCode, NULL);
+			glCompileShader(fragment);
+			checkCompileErrors(fragment, "FRAGMENT");
+		}
+		if (tc)
+		{
+			// tesselation control Shader
+			tesselationControl = glCreateShader(GL_TESS_CONTROL_SHADER);
+			glShaderSource(tesselationControl, 1, &tcShaderCode, NULL);
+			glCompileShader(tesselationControl);
+			checkCompileErrors(tesselationControl, "TESSELATION_CONTROL");
+		}
+		if (te)
+		{
+			// tesselation evaluation Shader
+			tesselationEvaluation = glCreateShader(GL_TESS_EVALUATION_SHADER);
+			glShaderSource(tesselationEvaluation, 1, &teShaderCode, NULL);
+			glCompileShader(tesselationEvaluation);
+			checkCompileErrors(tesselationEvaluation, "TESSELATION_EVALUATION");
+		}
+		if (g)
+		{
+			// geometry Shader
+			geometry = glCreateShader(GL_GEOMETRY_SHADER);
+			glShaderSource(geometry, 1, &gShaderCode, NULL);
+			glCompileShader(geometry);
+			checkCompileErrors(geometry, "GEOMETRY");
+		}
+		if (c)
+		{
+			// compute Shader
+			compute = glCreateShader(GL_COMPUTE_SHADER);
+			glShaderSource(compute, 1, &cShaderCode, NULL);
+			glCompileShader(compute);
+			checkCompileErrors(compute, "COMPUTE");
+		}
+
+
+		// shader Program
+		m_OpenGL_ID = glCreateProgram();
+		if (v) glAttachShader(m_OpenGL_ID, vertex);
+		if (tc) glAttachShader(m_OpenGL_ID, tesselationControl);
+		if (te) glAttachShader(m_OpenGL_ID, tesselationEvaluation);
+		if (g) glAttachShader(m_OpenGL_ID, geometry);
+		if (f) glAttachShader(m_OpenGL_ID, fragment);
+		if (c) glAttachShader(m_OpenGL_ID, compute);
+
+		glLinkProgram(m_OpenGL_ID);
+		checkCompileErrors(m_OpenGL_ID, "PROGRAM");
+
+		// delete the shaders as they're linked into our program now and no longer necessery
+		if (v) glDeleteShader(vertex);
+		if (tc) glDeleteShader(tesselationControl);
+		if (te) glDeleteShader(tesselationEvaluation);
+		if (g) glDeleteShader(geometry);
+		if (f) glDeleteShader(fragment);
+		if (c) glDeleteShader(compute);
 	}
 
 	OpenGLShader::~OpenGLShader()
@@ -162,7 +238,7 @@ namespace Ephyra
 		GLint isCompiled = 0;
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
 		if (isCompiled == GL_FALSE)
-		{
+			{
 			GLint maxLength = 0;
 			glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength);
 
@@ -204,7 +280,7 @@ namespace Ephyra
 		GLint isLinked = 0;
 		glGetProgramiv(m_OpenGL_ID, GL_LINK_STATUS, (int*)&isLinked);
 		if (isLinked == GL_FALSE)
-		{
+			{
 			GLint maxLength = 0;
 			glGetProgramiv(m_OpenGL_ID, GL_INFO_LOG_LENGTH, &maxLength);
 			std::vector<GLchar> infoLog(maxLength);
@@ -219,6 +295,30 @@ namespace Ephyra
 
 		glDetachShader(m_OpenGL_ID, vertexShader);
 		glDetachShader(m_OpenGL_ID, fragmentShader);
+	}
+
+	void OpenGLShader::checkCompileErrors(uint32_t shader, std::string type)
+	{
+		GLint success;
+		GLchar infoLog[1024];
+		if (type != "PROGRAM")
+		{
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+			if (!success)
+			{
+				glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+				std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+			}
+		}
+		else
+		{
+			glGetProgramiv(shader, GL_LINK_STATUS, &success);
+			if (!success)
+			{
+				glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+				std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+			}
+		}
 	}
 
 }
