@@ -1,6 +1,90 @@
 {
     "entities": [
         {
+            "EmmissiveComponent": {
+                "Color": [
+                    1.0,
+                    1.0,
+                    74.75
+                ],
+                "Position": [
+                    6.599999904632568,
+                    3.25,
+                    0.0
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Light3"
+                ],
+                "Type": [
+                    3
+                ]
+            },
+            "id": 3
+        },
+        {
+            "EmmissiveComponent": {
+                "Color": [
+                    1.0,
+                    51.599998474121094,
+                    0.699999988079071
+                ],
+                "Position": [
+                    -6.199999809265137,
+                    3.0,
+                    0.0
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Light2"
+                ],
+                "Type": [
+                    3
+                ]
+            },
+            "id": 2
+        },
+        {
+            "EmmissiveComponent": {
+                "Color": [
+                    30.0,
+                    1.0,
+                    10.0
+                ],
+                "Position": [
+                    0.0,
+                    2.0,
+                    0.0
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Light1"
+                ],
+                "Type": [
+                    3
+                ]
+            },
+            "id": 1
+        },
+        {
             "BoxColliderComponent": {
                 "HalfExtents": [
                     88.0,
@@ -44,39 +128,11 @@
                 ],
                 "Translation": [
                     0.0,
-                    28.799999237060547,
+                    0.0,
                     0.0
                 ]
             },
             "id": 0
-        },
-        {
-            "EmmissiveComponent": {
-                "Color": [
-                    30.0,
-                    1.0,
-                    10.0
-                ],
-                "Position": [
-                    0.0,
-                    2.0,
-                    0.0
-                ]
-            },
-            "StateComponent": {
-                "State": [
-                    true
-                ]
-            },
-            "TagComponent": {
-                "Tag": [
-                    "Light1"
-                ],
-                "Type": [
-                    3
-                ]
-            },
-            "id": 1
         }
     ]
 }

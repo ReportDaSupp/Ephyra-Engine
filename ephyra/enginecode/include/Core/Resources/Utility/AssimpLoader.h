@@ -51,7 +51,7 @@ namespace Engine {
 			uint32_t numColourChannels = mesh->GetNumColorChannels();
 			uint32_t numUVChannels = mesh->GetNumUVChannels();
 
-			Log::error("VERTICES");
+			//Log::error("VERTICES");
 			// Iterate through vertices
 			for (uint32_t i = 0; i < mesh->mNumVertices; i++)
 			{
@@ -81,7 +81,7 @@ namespace Engine {
 
 			}
 
-			Log::error("INDICES");
+			//Log::error("INDICES");
 			for (uint32_t i = 0; i < mesh->mNumFaces; i++)
 			{
 				aiFace face = mesh->mFaces[i];
@@ -194,7 +194,7 @@ namespace Engine {
 			float floatValue;
 			aiColor3D colorValue;
 
-			if (AI_SUCCESS == material->Get(AI_MATKEY_NAME, stringValue)) Log::error("Material name: {0}", stringValue.C_Str());
+			//if (AI_SUCCESS == material->Get(AI_MATKEY_NAME, stringValue)) Log::error("Material name: {0}", stringValue.C_Str());
 
 			if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, colorValue))
 			{
@@ -325,16 +325,16 @@ namespace Engine {
 		{
 			std::string parentName = "Null";
 			if (node->mParent != nullptr) parentName = node->mParent->mName.C_Str();
-			if (node->mNumMeshes > 0) Log::error("MESHED NODE: {0} PARENT: {1}", node->mName.C_Str(), parentName);
-			if (node->mNumMeshes == 0) Log::error("UNMESHED NODE: {0} PARENT: {1}", node->mName.C_Str(), parentName);
+			//if (node->mNumMeshes > 0) Log::error("MESHED NODE: {0} PARENT: {1}", node->mName.C_Str(), parentName);
+			//if (node->mNumMeshes == 0) Log::error("UNMESHED NODE: {0} PARENT: {1}", node->mName.C_Str(), parentName);
 
 			aiMatrix4x4* transform = &node->mTransformation;
 
-			Log::error("TRANSFORM");
-			Log::error("{0} {1} {2} {3}", transform->a1, transform->a2, transform->a3, transform->a4);
-			Log::error("{0} {1} {2} {3}", transform->b1, transform->b2, transform->b3, transform->b4);
-			Log::error("{0} {1} {2} {3}", transform->c1, transform->c2, transform->c3, transform->c4);
-			Log::error("{0} {1} {2} {3}", transform->d1, transform->d2, transform->d3, transform->d4);
+			//Log::error("TRANSFORM");
+			//Log::error("{0} {1} {2} {3}", transform->a1, transform->a2, transform->a3, transform->a4);
+			//Log::error("{0} {1} {2} {3}", transform->b1, transform->b2, transform->b3, transform->b4);
+			//Log::error("{0} {1} {2} {3}", transform->c1, transform->c2, transform->c3, transform->c4);
+			//Log::error("{0} {1} {2} {3}", transform->d1, transform->d2, transform->d3, transform->d4);
 
 			// process all the node's meshes
 			for (uint32_t i = 0; i < node->mNumMeshes; i++)

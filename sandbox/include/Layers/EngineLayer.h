@@ -32,13 +32,6 @@ void EngineLayer::OnAttach() {
     gResources->gPhysicsSystem.start();
     gResources->gPhysicsSystem.getPhysicsWorld()->setEventListener(&gResources->m_collisionListener);
 
-    // Init 2D Audio
-    /*gResources->gSoundPlayer.reset(new Engine::audioSystem2D);
-    gResources->gSoundPlayer->start();
-    gResources->gSoundPlayer->addSound("Background", "./assets/sounds/AmbientNoise.mp3");
-    gResources->gSoundPlayer->setSoundLooping("Background", true);
-    gResources->gSoundPlayer->playSound("Background");*/
-
     // Init 3D Renderer
     Engine::Renderer3D::init(49152, 49152, 16384);
 
@@ -72,14 +65,6 @@ void EngineLayer::OnAttach() {
     gResources->sWideUniforms3D["u_projection"] = std::pair<Engine::ShaderDataType, void*>(Engine::ShaderDataType::Mat4, static_cast<void*>(glm::value_ptr(gResources->m_projection3D)));
     gResources->sWideUniforms3D["u_view"] = std::pair<Engine::ShaderDataType, void*>(Engine::ShaderDataType::Mat4, static_cast<void*>(glm::value_ptr(gResources->m_view3D)));
     gResources->sWideUniforms3D["u_viewPos"] = std::pair<Engine::ShaderDataType, void*>(Engine::ShaderDataType::Float3, static_cast<void*>(glm::value_ptr(gResources->m_viewPos3D)));
-
-    auto Floor = gResources->m_registry.create();
-    gResources->m_registry.emplace<Engine::TagComponent>(Floor, "Floor", Engine::TagType::Render3D);
-    gResources->m_registry.emplace<Engine::StateComponent>(Floor, true);
-    gResources->m_registry.emplace<Engine::TransformComponent>(Floor, glm::vec3{ 0.f,-1.f,0.f }, glm::vec3{ 0.f, 0.f, 0.f }, glm::vec3{ 176.f, 1.f, 136.f });
-    gResources->m_registry.emplace<Engine::MeshRendererComponent>(Floor, "./assets/models/Floor/Floor.obj", "Floor");
-    gResources->m_registry.emplace<Engine::RigidBodyComponent>(Floor, Floor, rp3d::BodyType::STATIC);
-    gResources->m_registry.emplace<Engine::BoxColliderComponent>(Floor, Floor, glm::vec3(88.f, 1.0f, 68.f));
 
 }
 

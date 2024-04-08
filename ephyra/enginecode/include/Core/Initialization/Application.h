@@ -97,11 +97,11 @@ namespace Engine {
 			Log::info("Key Pressed event - Key: {0}", key);
 			switch (keycode)
 			{
-			case GLFW_KEY_ESCAPE:
+			/*case GLFW_KEY_ESCAPE:
 				m_running = false;
 				e.handle(true);
 				return e.handled();
-				break;
+				break;*/
 			default:
 				return m_layerStack->OnKeyPress(e);
 				break;

@@ -113,111 +113,26 @@ void ImGuiLayer::OnUpdate(float timestep) {
 
 void ImGuiLayer::OnRender() {
 
-    //if (ImGui::BeginMainMenuBar())
-    //{
-    //    ImGui::TextColored(TitleColor, "Untitled Horror Game ");
-
-    //    ImGui::Separator();
-    //     
-    //    if (ImGui::BeginMenu("Loaded Data"))
-    //    {
-    //        if (gResources->isGuiActive)
-    //        {
-    //            for (auto temp : gResources->getAll())
-    //            {
-    //                switch (temp.type)
-    //                {
-    //                    case Engine::SceneAsset::Type::Undefined:
-    //                    {
-    //                        ImGui::Text("Undefined: %s", temp.id);
-    //                        break;
-    //                    }
-    //                    case Engine::SceneAsset::Type::Transform:
-    //                    {
-    //                        ImGui::Text("Transform: %s", temp.id);
-    //                        break;
-    //                    }
-    //                    case Engine::SceneAsset::Type::Quad:
-    //                    {
-    //                        ImGui::Text("Quad: %s", temp.id);
-    //                        break;
-    //                    }
-    //                    case Engine::SceneAsset::Type::Shader:
-    //                    {
-    //                        ImGui::Text("Shader: %s", temp.id);
-    //                        break;
-    //                    }
-    //                    case Engine::SceneAsset::Type::Texture:
-    //                    {
-    //                        ImGui::Text("Texture: %s", temp.id);
-    //                        break;
-    //                    }
-    //                    case Engine::SceneAsset::Type::SubTexture:
-    //                    {
-    //                        ImGui::Text("SubTexture: %s", temp.id);
-    //                        break;
-    //                    }
-    //                    case Engine::SceneAsset::Type::Material:
-    //                    {
-    //                        ImGui::Text("Material: %s", temp.id);
-    //                        break;
-    //                    }
-    //                    case Engine::SceneAsset::Type::Geometry:
-    //                    {
-    //                        ImGui::Text("Geometry: %s", temp.id);
-    //                        break;
-    //                    }
-    //                }
-
-    //                
-    //            }
-    //        }
-    //        ImGui::EndMenu();
-    //    }
-
-
-    //    
-
-    //    ImGui::Separator();
-
-    //    if (gResources->ePhysics)
-    //    {
-    //        if (ImGui::Button("Pause"))
-    //        {
-    //            gResources->ePhysics = false;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        if (ImGui::Button("Play"))
-    //        {
-    //            gResources->ePhysics = true;
-    //            auto& view = gResources->m_registry.view<Engine::TransformComponent>();
-    //            for (auto& asset : view)
-    //            {
-    //                if (gResources->m_registry.all_of<Engine::RigidBodyComponent>(asset))
-    //                {
-    //                    auto& rbc = gResources->m_registry.get<Engine::RigidBodyComponent>(asset);
-    //                    auto& transformation = gResources->m_registry.get<Engine::TransformComponent>(asset);
-    //                    reactphysics3d::Transform transform;
-    //                    transform.setPosition({ transformation.Translation.x,  transformation.Translation.y,  transformation.Translation.z });
-    //                    transform.setOrientation({ transformation.Rotation.x, transformation.Rotation.y, transformation.Rotation.z, transformation.Rotation.w });
-    //                    rbc.m_body->setTransform(transform);
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    ImGui::EndMainMenuBar();
-    //}
-
     Engine::RendererCommon::colorFBO->unbind();
 
     float ms = 1000.0f / ImGui::GetIO().Framerate;
 
+    if (gResources->isGuiActive)
+    {
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.Colors[ImGuiCol_WindowBg] = ImVec4(0.129f, 0.133f, 0.149f, 1.0f);
+        
+    }
+    else
+    {
+        ImGuiStyle& style = ImGui::GetStyle();
+
+        style.Colors[ImGuiCol_WindowBg] = ImVec4(0.2f, 0.133f, 0.149f, 1.0f);
+    }
+
     if (gResources->eIntroMessage)
     {
-        if (ImGui::Begin("IntroMessage", &gResources->eIntroMessage))
+        if (ImGui::Begin("Welcome Screen", &gResources->eIntroMessage))
         {
             ImGui::Text("Welcome to the Ephyra Animation Engine!");
 
@@ -232,6 +147,7 @@ void ImGuiLayer::OnRender() {
                     name += loadName[i];
                 }
                 glfwSetWindowTitle((GLFWwindow*)gResources->m_window->getNativeWindow(), name.c_str());
+                gResources->eIntroMessage = false;
             }
             
         }
