@@ -4,13 +4,13 @@
 #include "Core/Resources/Components/Components.h"
 #include "Core/Resources/Utility/AssimpLoader.h"
 
-class GameLayer : public Engine::Layer {
+class EngineLayer : public Engine::Layer {
 private:
 
     std::shared_ptr<Engine::ResourceManager> gResources;
 
 public:
-    GameLayer(const std::string& name = "GameLayer")
+    EngineLayer(const std::string& name = "EngineLayer")
         : Engine::Layer(name) { gResources = Engine::ResourceManager::getInstance(); }
 
     void OnAttach() override;
@@ -26,18 +26,18 @@ public:
     bool OnMouseMovedEvent(Engine::MouseMovedEvent& e) override;
 };
 
-void GameLayer::OnAttach() {
+void EngineLayer::OnAttach() {
 
     // Init Physics
     gResources->gPhysicsSystem.start();
     gResources->gPhysicsSystem.getPhysicsWorld()->setEventListener(&gResources->m_collisionListener);
 
     // Init 2D Audio
-    gResources->gSoundPlayer.reset(new Engine::audioSystem2D);
+    /*gResources->gSoundPlayer.reset(new Engine::audioSystem2D);
     gResources->gSoundPlayer->start();
     gResources->gSoundPlayer->addSound("Background", "./assets/sounds/AmbientNoise.mp3");
     gResources->gSoundPlayer->setSoundLooping("Background", true);
-    gResources->gSoundPlayer->playSound("Background");
+    gResources->gSoundPlayer->playSound("Background");*/
 
     // Init 3D Renderer
     Engine::Renderer3D::init(49152, 49152, 16384);
@@ -83,11 +83,11 @@ void GameLayer::OnAttach() {
 
 }
 
-void GameLayer::OnDetach() {
+void EngineLayer::OnDetach() {
     // Cleanup code here
 }
 
-void GameLayer::OnUpdate(float timestep) {
+void EngineLayer::OnUpdate(float timestep) {
     // Update logic for each frame
 
     // Update Physics
@@ -133,7 +133,7 @@ void GameLayer::OnUpdate(float timestep) {
     
 }
 
-void GameLayer::OnRender(){
+void EngineLayer::OnRender(){
 
     //Call Render Commands
     Engine::RendererCommon::actionCommand(gResources->setClearColourCommand);
@@ -198,7 +198,7 @@ void GameLayer::OnRender(){
     Engine::Renderer3D::end(enabledEffects);
 }
 
-bool GameLayer::OnKeyPress(Engine::KeyPressedEvent& e) {
+bool EngineLayer::OnKeyPress(Engine::KeyPressedEvent& e) {
     e.handle(true);
     int keycode = e.getKeyCode();
     int scancode = glfwGetKeyScancode(keycode);
@@ -211,7 +211,7 @@ bool GameLayer::OnKeyPress(Engine::KeyPressedEvent& e) {
     return e.handled();
 }
 
-bool GameLayer::OnMousePressed(Engine::MouseButtonPressedEvent& e){
+bool EngineLayer::OnMousePressed(Engine::MouseButtonPressedEvent& e){
     e.handle(true);
     auto button = e.getButton();
     Engine::Log::info("Mouse Button Pressed event: ({0})", button);
@@ -219,7 +219,7 @@ bool GameLayer::OnMousePressed(Engine::MouseButtonPressedEvent& e){
     return e.handled();
 }
 
-bool GameLayer::OnMouseMovedEvent(Engine::MouseMovedEvent& e){
+bool EngineLayer::OnMouseMovedEvent(Engine::MouseMovedEvent& e){
     e.handle(true);
     auto& position = e.getPos();
     Engine::Log::info("Mouse Moved event: ({0}, {1})", position.x, position.y);

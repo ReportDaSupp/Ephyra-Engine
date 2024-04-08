@@ -215,6 +215,29 @@ void ImGuiLayer::OnRender() {
 
     float ms = 1000.0f / ImGui::GetIO().Framerate;
 
+    if (gResources->eIntroMessage)
+    {
+        if (ImGui::Begin("IntroMessage", &gResources->eIntroMessage))
+        {
+            ImGui::Text("Welcome to the Ephyra Animation Engine!");
+
+            static char loadName[128] = "";
+            ImGui::InputTextWithHint("Load Name: ", "Enter Scene Name", loadName, IM_ARRAYSIZE(loadName));
+            if (ImGui::Button("Load Scene From File"))
+            {
+                gManager->loadScene(gResources->m_registry, loadName);
+                std::string name = "Ephyra Animation Engine - ";
+                for (int i = 0; i < IM_ARRAYSIZE(loadName); i++)
+                {
+                    name += loadName[i];
+                }
+                glfwSetWindowTitle((GLFWwindow*)gResources->m_window->getNativeWindow(), name.c_str());
+            }
+            
+        }
+        ImGui::End();
+    }
+
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
     ImGuiWindowFlags windowFlags = 0;

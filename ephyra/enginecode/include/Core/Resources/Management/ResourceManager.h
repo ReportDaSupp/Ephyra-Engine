@@ -109,11 +109,10 @@ namespace Engine
         glm::mat4 m_projection2D;
 
         // GUI Layer
-        bool isGuiActive = false;
-        bool showHierarchy = true;
+        bool isGuiActive = true;
         bool eDOF = false;
-        bool eVolumetric = true;
-        bool eBloom = false;
+        bool eVolumetric = false;
+        bool eBloom = true;
         bool eVignette = false;
         bool eToneMapping = true;
         bool eRG = false;
@@ -122,6 +121,8 @@ namespace Engine
         bool eViewport = true;
         bool eHierarchy = true;
         bool eAssets= true;
+
+        bool eIntroMessage = true;
 
 
         std::string selectedObject;
@@ -156,10 +157,10 @@ namespace Engine
 
 }
 
-//// Include guards to prevent multiple inclusion
-//#ifndef RESOURCE_MANAGER_H
-//#define RESOURCE_MANAGER_H
-//
-//extern std::shared_ptr<Engine::ResourceManager> gResourceManager;
-//
-//#endif
+// Include guards to prevent multiple inclusion
+#ifndef RESOURCE_MANAGER_H
+#define RESOURCE_MANAGER_H
+
+extern std::shared_ptr<Engine::ResourceManager> gResourceManager;
+
+#endif
