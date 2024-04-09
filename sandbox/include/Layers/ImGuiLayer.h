@@ -85,6 +85,7 @@ void ImGuiLayer::OnAttach() {
     ImGui::StyleColorsDark();
     SetCustomImGuiStyle();
 
+    gResources->imGuiWelcomeImage.reset(Engine::Texture::create("./assets/sprites/WelcomeImage.png"));
 }
 
 void ImGuiLayer::OnDetach() {
@@ -149,9 +150,12 @@ void ImGuiLayer::OnRender() {
 
     if (gResources->eIntroMessage)
     {
-        if (ImGui::Begin("Welcome Screen", &gResources->eIntroMessage))
-        {
+        if (ImGui::Begin("Welcome Screen", &gResources->eIntroMessage, ImGuiWindowFlags_NoDecoration))
+        {   
             ImGui::Text("Welcome to the Ephyra Animation Engine!");
+            uint32_t unit;
+            gResources->imGuiWelcomeImage->load(*Engine::RendererCommon::m_textUM, unit);
+            ImGui::Image((void*)(intptr_t)gResources->imGuiWelcomeImage->getID(), ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().x), ImVec2(0, 0), ImVec2(1, 1));
 
             static char loadName[128] = "";
             ImGui::InputTextWithHint("Load Name: ", "Enter Scene Name", loadName, IM_ARRAYSIZE(loadName));
