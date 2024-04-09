@@ -13,11 +13,35 @@
 namespace Engine {
 	namespace Loader
 	{
+		struct BoneInfo {
+			glm::mat4 boneOffset;
+			glm::mat4 finalTransformation;
+		};
+
+		struct VertexBoneData {
+			unsigned int IDs[4] = { 0 };
+			float weights[4] = { 0.0f };
+
+			void addBoneData(unsigned int boneID, float weight) {
+				for (unsigned int i = 0; i < 4; ++i) {
+					if (weights[i] == 0.0) {
+						IDs[i] = boneID;
+						weights[i] = weight;
+						return;
+					}
+				}
+				assert(0);
+			}
+		};
+
 		struct TempMesh
 		{
-			
 			std::vector<Renderer3DVertex>vertices;
 			std::vector<uint32_t> indices;
+			std::vector<VertexBoneData> boneData;
+			std::map<std::string, unsigned int> boneMapping;
+			std::vector<BoneInfo> bones;
+			unsigned int numBones = 0;
 			std::shared_ptr<Texture> diffuseTexture = nullptr;
 			std::shared_ptr<Texture> specularTexture = nullptr;
 			std::shared_ptr<Texture> ambientTexture = nullptr;
@@ -25,6 +49,41 @@ namespace Engine {
 			glm::vec3 diffuseTint = { 1.f,1.f,1.f };
 
 		};
+
+		struct Bone {
+			std::string name;
+			int id;
+			glm::mat4 offsetMatrix;
+			glm::mat4 finalTransformation;
+
+			Bone() : id(-1), offsetMatrix(glm::mat4(1.0f)), finalTransformation(glm::mat4(1.0f)) {}
+		};
+
+		struct Keyframe {
+			float timeStamp;
+			glm::vec3 position;
+			glm::quat rotation;
+			glm::vec3 scale;
+
+			Keyframe() : timeStamp(0.0f), position(glm::vec3(0.0f)), rotation(glm::quat()), scale(glm::vec3(1.0f)) {}
+		};
+
+		struct Animation {
+			float duration;
+			float ticksPerSecond;
+			std::map<std::string, std::vector<Keyframe>> boneKeyframes;
+
+			Animation() : duration(0.0f), ticksPerSecond(0.0f) {}
+		};
+
+		struct Skeleton {
+			std::vector<Bone> bones;
+			std::map<std::string, unsigned int> boneMapping;
+			std::vector<Animation> animations;
+
+			Skeleton() {}
+		};
+
 		static std::shared_ptr<ResourceManager> s_resources = nullptr;
 		static std::shared_ptr<Shader> s_shader = nullptr;
 
@@ -34,28 +93,64 @@ namespace Engine {
 		static std::shared_ptr<Geometry> s_geo;
 		static std::string s_ID;
 
+		glm::mat4 AssimpToGLMMatrix(const aiMatrix4x4& apMat) {
+			glm::mat4 glmMat;
+
+			glmMat[0][0] = apMat.a1; glmMat[1][0] = apMat.a2;
+			glmMat[2][0] = apMat.a3; glmMat[3][0] = apMat.a4;
+			glmMat[0][1] = apMat.b1; glmMat[1][1] = apMat.b2;
+			glmMat[2][1] = apMat.b3; glmMat[3][1] = apMat.b4;
+			glmMat[0][2] = apMat.c1; glmMat[1][2] = apMat.c2;
+			glmMat[2][2] = apMat.c3; glmMat[3][2] = apMat.c4;
+			glmMat[0][3] = apMat.d1; glmMat[1][3] = apMat.d2;
+			glmMat[2][3] = apMat.d3; glmMat[3][3] = apMat.d4;
+
+			return glmMat;
+		}
+
+		glm::vec3 AssimpToGLMVec(const aiVector3D& ai_vec) {
+			return glm::vec3(ai_vec.x, ai_vec.y, ai_vec.z);
+		}
+
+		static void processAnimations(const aiScene* scene, Skeleton& skeleton) {
+			for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+				aiAnimation* ai_anim = scene->mAnimations[i];
+				Animation anim;
+				anim.duration = ai_anim->mDuration;
+				anim.ticksPerSecond = ai_anim->mTicksPerSecond ? ai_anim->mTicksPerSecond : 25.0f;
+
+				for (unsigned int j = 0; j < ai_anim->mNumChannels; j++) {
+					aiNodeAnim* channel = ai_anim->mChannels[j];
+					std::vector<Keyframe> keyframes;
+					// Process position keyframes
+					for (unsigned int k = 0; k < channel->mNumPositionKeys; k++) {
+						aiVector3D ai_pos = channel->mPositionKeys[k].mValue;
+						float timeStamp = (float)channel->mPositionKeys[k].mTime;
+						//keyframes.push_back(Keyframe(timeStamp, AssimpToGLMVec(ai_pos), glm::quat(0,0,0,0), glm::vec3(0,0,0)));
+					}
+					// Similarly, process rotation and scaling keyframes
+
+					anim.boneKeyframes[channel->mNodeName.C_Str()] = keyframes;
+				}
+
+				skeleton.animations.push_back(anim);
+			}
+		}
 
 		static void ASSIMPProcessMesh(aiMesh* mesh, const aiScene* scene)
 		{
-
 			TempMesh tmpMesh;
 
 			tmpMesh.vertices.reserve(mesh->mNumVertices);
 
-			std::multimap<uint32_t, std::pair<uint32_t, float>> vertexBoneWeights;
-
-			// Find vertex properties
 			bool hasPositions = mesh->HasPositions();
 			bool hasNormals = mesh->HasNormals();
 			bool hasTangents = mesh->HasTangentsAndBitangents();
 			uint32_t numColourChannels = mesh->GetNumColorChannels();
 			uint32_t numUVChannels = mesh->GetNumUVChannels();
 
-			//Log::error("VERTICES");
-			// Iterate through vertices
 			for (uint32_t i = 0; i < mesh->mNumVertices; i++)
 			{
-				// Get vertex data
 				glm::vec3 position, normal, tangent, biTangent;
 				std::vector<glm::vec4> colours(numColourChannels);
 				std::vector<glm::vec2> texCoords(numUVChannels);
@@ -81,14 +176,36 @@ namespace Engine {
 
 			}
 
-			//Log::error("INDICES");
 			for (uint32_t i = 0; i < mesh->mNumFaces; i++)
 			{
 				aiFace face = mesh->mFaces[i];
-				// retrieve all indices of the face and store them in the indices vector
 				for (uint32_t j = 0; j < face.mNumIndices; j++)
 				{
 					tmpMesh.indices.push_back(face.mIndices[j]);
+				}
+			}
+
+			for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+				aiBone* ai_bone = mesh->mBones[i];
+				std::string boneName = ai_bone->mName.C_Str();
+
+				unsigned int boneIndex = 0;
+				if (tmpMesh.boneMapping.find(boneName) == tmpMesh.boneMapping.end()) {
+					boneIndex = tmpMesh.numBones;
+					tmpMesh.numBones++;
+					BoneInfo bi;
+					bi.boneOffset = AssimpToGLMMatrix(ai_bone->mOffsetMatrix);
+					tmpMesh.bones.push_back(bi);
+				}
+				else {
+					boneIndex = tmpMesh.boneMapping[boneName];
+				}
+
+				tmpMesh.boneMapping[boneName] = boneIndex;
+				for (unsigned int j = 0; j < ai_bone->mNumWeights; j++) {
+					unsigned int VertexID = ai_bone->mWeights[j].mVertexId;
+					float Weight = ai_bone->mWeights[j].mWeight;
+					tmpMesh.boneData[VertexID].addBoneData(boneIndex, Weight);
 				}
 			}
 
@@ -308,9 +425,6 @@ namespace Engine {
 			}
 			if (!tmpMesh.diffuseTexture)
 			{
-
-				//s_material.reset(new Material(s_shader, RendererCommon::defaultTexture, glm::vec4(tmpMesh.diffuseTint, 1.0f)));
-
 				//Add material to resource manager
 				s_resources->addAsset(s_ID + "Material", Engine::SceneAsset::Type::Material, s_material);
 
@@ -325,16 +439,8 @@ namespace Engine {
 		{
 			std::string parentName = "Null";
 			if (node->mParent != nullptr) parentName = node->mParent->mName.C_Str();
-			//if (node->mNumMeshes > 0) Log::error("MESHED NODE: {0} PARENT: {1}", node->mName.C_Str(), parentName);
-			//if (node->mNumMeshes == 0) Log::error("UNMESHED NODE: {0} PARENT: {1}", node->mName.C_Str(), parentName);
 
 			aiMatrix4x4* transform = &node->mTransformation;
-
-			//Log::error("TRANSFORM");
-			//Log::error("{0} {1} {2} {3}", transform->a1, transform->a2, transform->a3, transform->a4);
-			//Log::error("{0} {1} {2} {3}", transform->b1, transform->b2, transform->b3, transform->b4);
-			//Log::error("{0} {1} {2} {3}", transform->c1, transform->c2, transform->c3, transform->c4);
-			//Log::error("{0} {1} {2} {3}", transform->d1, transform->d2, transform->d3, transform->d4);
 
 			// process all the node's meshes
 			for (uint32_t i = 0; i < node->mNumMeshes; i++)

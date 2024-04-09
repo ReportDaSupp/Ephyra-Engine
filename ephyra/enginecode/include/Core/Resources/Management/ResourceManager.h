@@ -121,6 +121,7 @@ namespace Engine
         bool eViewport = true;
         bool eHierarchy = true;
         bool eAssets= true;
+        bool eKeyframe = true;
 
         bool eIntroMessage = true;
 

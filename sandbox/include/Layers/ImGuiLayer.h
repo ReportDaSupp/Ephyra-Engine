@@ -49,6 +49,12 @@ private:
     int winPosX;
     int winPosY;
 
+    float currentTime = 0.0f;
+    float timelineStart = 0.0f;
+    float timelineEnd = 250.0f;
+    bool  isPlaying = false;
+    float maxTime = 250.0f;
+
     ImVec2 ViewportSize;
 
 public:
@@ -107,6 +113,16 @@ void ImGuiLayer::OnUpdate(float timestep) {
     ImGui::NewFrame();
     if (gResources->isGuiActive) glfwSetInputMode((GLFWwindow*)gResources->m_window->getNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     else glfwSetInputMode((GLFWwindow*)gResources->m_window->getNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    if (isPlaying)
+    {
+        currentTime += timestep;
+    }
+    if (currentTime > maxTime)
+    {
+        currentTime = 0;
+        isPlaying = false;
+    }
 
     this->OnRender();
 }
@@ -171,11 +187,11 @@ void ImGuiLayer::OnRender() {
                 std::string RenderTypes[] = { "Render3D", "Render2D", "Light"};
                 static std::string RenderType = "Not Selected";
 
-                if (ImGui::BeginCombo("Render Type", RenderType.c_str())) // The second parameter is the label previewed before opening the combo.
+                if (ImGui::BeginCombo("Render Type", RenderType.c_str()))
                 {
                     for (auto type : RenderTypes)
                     {
-                        bool is_selected = (RenderType == type); // You can store your selection however you want, outside or inside your objects
+                        bool is_selected = (RenderType == type);
                         if (ImGui::Selectable(type.c_str(), is_selected))
                         {
                             RenderType = type;
@@ -430,6 +446,76 @@ void ImGuiLayer::OnRender() {
         }
         ImGui::End();
     }
+    if (gResources->eKeyframe)
+    {
+        if (ImGui::Begin("Keyframe Timeline"))
+        {
+
+            // Button Size
+            ImVec2 buttonSize(50, 20);
+
+            // Play Button
+            if (ImGui::Button(isPlaying ? "Pause" : "Play", buttonSize)) {
+                isPlaying = !isPlaying; // Toggle play/pause state
+            }
+            ImGui::SameLine();
+
+            if (ImGui::Button("Reset", buttonSize)) {
+                currentTime = 0.0f;
+            }
+            ImGui::SameLine();
+
+            ImGui::PushItemWidth(100);
+            ImGui::InputFloat("Duration", &maxTime, 1.0f, 10.0f, "%.1f");
+            ImGui::PopItemWidth();
+
+            float windowVisible = ImGui::GetContentRegionAvail().x;
+            float timelineWidth = windowVisible - buttonSize.x * 3 - ImGui::GetStyle().ItemSpacing.x * 4;
+
+            ImGui::Text("Current Time: %.2f", currentTime);
+            ImGui::SameLine();
+            ImGui::Text("Maximum Time: %.2f", maxTime);
+            
+
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+            ImVec2 timelineStartPos = ImGui::GetCursorScreenPos();
+            ImVec2 timelineSize = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
+
+            draw_list->AddRectFilled(timelineStartPos, ImVec2(timelineStartPos.x + timelineSize.x, timelineStartPos.y + timelineSize.y), IM_COL32(80, 80, 80, 255));
+
+            int numTicks = maxTime;
+            for (int i = 0; i <= numTicks; ++i) {
+                float t = (float)i / (float)numTicks;
+                float x = timelineStartPos.x + t * timelineSize.x;
+                if (i % 5 == 0)
+                    draw_list->AddLine(ImVec2(x, timelineStartPos.y), ImVec2(x, timelineStartPos.y + timelineSize.y), IM_COL32(160, 160, 160, 255));
+                else 
+                    draw_list->AddLine(ImVec2(x, timelineStartPos.y), ImVec2(x, timelineStartPos.y + timelineSize.y), IM_COL32(60, 60, 60, 255));
+            }
+
+            float t = (currentTime - timelineStart) / (timelineEnd - timelineStart);
+            float x = timelineStartPos.x + t * timelineSize.x;
+            draw_list->AddLine(ImVec2(x, timelineStartPos.y), ImVec2(x, timelineStartPos.y + timelineSize.y), IM_COL32(255, 255, 0, 255), 2.0f);
+
+            ImGui::InvisibleButton("##timeline", timelineSize);
+            if (ImGui::IsItemHovered()) {
+                if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                    ImVec2 mousePos = ImGui::GetMousePos();
+                    float newT = (mousePos.x - timelineStartPos.x) / timelineSize.x;
+                    currentTime = timelineStart + newT * (timelineEnd - timelineStart);
+                }
+            }
+
+            if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+                ImVec2 mousePos = ImGui::GetMousePos();
+                float newT = (mousePos.x - timelineStartPos.x) / timelineSize.x;
+                currentTime = timelineStart + newT * (timelineEnd - timelineStart);
+            }
+
+            ImGui::End();
+        }
+    }
     if (gResources->eAssets)
     {
         if (ImGui::Begin("Assets", &gResources->eAssets, windowFlags))
@@ -479,6 +565,8 @@ void ImGuiLayer::OnRender() {
                         break;
                     }
                 }
+
+
                 
             }
         }
@@ -543,6 +631,7 @@ void ImGuiLayer::OnRender() {
             ImGui::Checkbox("Viewport", &gResources->eViewport);
             ImGui::Checkbox("Hierarchy", &gResources->eHierarchy);
             ImGui::Checkbox("Assets", &gResources->eAssets);
+            ImGui::Checkbox("Keyframe Timeline", &gResources->eKeyframe);
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Help"))
