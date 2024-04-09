@@ -125,6 +125,8 @@ namespace Engine
 
         bool eIntroMessage = true;
 
+        std::shared_ptr<Texture> imGuiWelcomeImage;
+
 
         std::string selectedObject;
 
