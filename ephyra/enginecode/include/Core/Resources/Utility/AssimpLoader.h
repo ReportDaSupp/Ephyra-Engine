@@ -22,16 +22,7 @@ namespace Engine {
 			unsigned int IDs[4] = { 0 };
 			float weights[4] = { 0.0f };
 
-			void addBoneData(unsigned int boneID, float weight) {
-				for (unsigned int i = 0; i < 4; ++i) {
-					if (weights[i] == 0.0) {
-						IDs[i] = boneID;
-						weights[i] = weight;
-						return;
-					}
-				}
-				assert(0);
-			}
+			void addBoneData(unsigned int boneID, float weight) {};
 		};
 
 		struct TempMesh

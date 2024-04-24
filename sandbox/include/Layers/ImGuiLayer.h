@@ -525,96 +525,68 @@ void ImGuiLayer::OnRender() {
     {
         if (ImGui::Begin("Assets", &gResources->eAssets, windowFlags))
         {
-            for (auto temp : gResources->getAll())
+            static Engine::SceneAsset::Type currentAssetType;
+            if (ImGui::BeginTabBar("##AssetTabs"))
             {
-                switch (temp.type)
-                {
-                    case Engine::SceneAsset::Type::Undefined:
-                    {
-                        //ImGui::Text("Undefined: %s", temp.id);
-                        break;
-                    }
-                    case Engine::SceneAsset::Type::Transform:
-                    {
-                        //ImGui::Text("Transform: %s", temp.id);
-                        break;
-                    }
-                    case Engine::SceneAsset::Type::Quad:
-                    {
-                        //ImGui::Text("Quad: %s", temp.id);
-                        break;
-                    }
-                    case Engine::SceneAsset::Type::Shader:
-                    {
-                        //ImGui::Text("Shader: %s", temp.id);
-                        break;
-                    }
-                    case Engine::SceneAsset::Type::Texture:
-                    {   
-
-                        const ImVec2 buttonSize(96, 96);
-                        const float padding = 10.0f;
-
-                        // Calculate total item width and height
-                        ImVec2 textSize = ImGui::CalcTextSize(temp.id.c_str());
-                        float itemWidth = buttonSize.x + padding * 2 + 6;
-                        float itemHeight = buttonSize.y + padding + 6 + textSize.y;
-
-                        ImVec2 cursorPos = ImGui::GetCursorScreenPos(); // Store cursor position
-
-                        // Container rectangle for the current item
-                        ImDrawList* drawList = ImGui::GetWindowDrawList();
-                        ImVec2 rectMin = cursorPos;
-                        ImVec2 rectMax = ImVec2(cursorPos.x + itemWidth, cursorPos.y + itemHeight);
-                        drawList->AddRectFilled(rectMin, rectMax, IM_COL32(50, 50, 50, 255), 1.0f);
-
-                        // Offset cursor for image button
-                        ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + padding, cursorPos.y + padding));
-                        if (ImGui::ImageButton((ImTextureID)gResources->getAsset<Engine::Texture>(temp.id)->getID(), buttonSize, ImVec2(0,0), ImVec2(1, 1), 3)) {
-                            // Your button logic here...
-                        }
-
-                        // Drag and drop source for the image button
-                        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                            ImGui::SetDragDropPayload("TEXTURE_PAYLOAD", &temp.id, sizeof(temp.id)); // Set payload to carry the texture identifier
-                            ImGui::Text("Texture: %s", temp.id); // Display texture name as the drag preview
-                            ImGui::EndDragDropSource();
-                        }
-
-                        // Position the cursor for the text label below the image button
-                        ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + padding, cursorPos.y + buttonSize.y + padding + 6));
-                        ImGui::Text("%s", temp.id);
-
-                        if (ImGui::GetContentRegionAvail().x < cursorPos.x - ImGui::GetWindowPos().x + itemWidth * 2 + ImGui::GetStyle().ItemSpacing.x)
-                        {
-                            ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x, cursorPos.y + itemHeight));
-                            ImGui::NewLine();
-                        }
-                        else
-                            ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + itemWidth + ImGui::GetStyle().ItemSpacing.x, cursorPos.y));
-
-                        break;
-                    }
-                    case Engine::SceneAsset::Type::SubTexture:
-                    {
-                        //ImGui::Text("SubTexture: %s", temp.id);
-                        break;
-                    }
-                    case Engine::SceneAsset::Type::Material:
-                    {
-                        //ImGui::Text("Material: %s", temp.id);
-                        break;
-                    }
-                    case Engine::SceneAsset::Type::Geometry:
-                    {
-                        //ImGui::Text("Geometry: %s", temp.id);
-                        break;
-                    }
+                if (ImGui::BeginTabItem("Textures")) {
+                    currentAssetType = Engine::SceneAsset::Type::Texture;
+                    ImGui::EndTabItem();
                 }
-
-
-                
+                if (ImGui::BeginTabItem("Geometry")) {
+                    currentAssetType = Engine::SceneAsset::Type::Geometry;
+                    ImGui::EndTabItem();
+                }
+                ImGui::EndTabBar();
             }
+            switch (currentAssetType)
+            {
+            case Engine::SceneAsset::Type::Texture:
+
+                for (auto temp : gResources->getAllOf(Engine::SceneAsset::Type::Texture))
+                {
+                    const ImVec2 buttonSize(96, 96);
+                    const float padding = 10.0f;
+
+                    // Calculate total item width and height
+                    ImVec2 textSize = ImGui::CalcTextSize(temp.id.c_str());
+                    float itemWidth = buttonSize.x + padding * 2 + 6;
+                    float itemHeight = buttonSize.y + padding + 6 + textSize.y;
+
+                    ImVec2 cursorPos = ImGui::GetCursorScreenPos(); // Store cursor position
+
+                    // Container rectangle for the current item
+                    ImDrawList* drawList = ImGui::GetWindowDrawList();
+                    ImVec2 rectMin = cursorPos;
+                    ImVec2 rectMax = ImVec2(cursorPos.x + itemWidth, cursorPos.y + itemHeight);
+                    drawList->AddRectFilled(rectMin, rectMax, IM_COL32(50, 50, 50, 255), 1.0f);
+
+                    // Offset cursor for image button
+                    ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + padding, cursorPos.y + padding));
+                    if (ImGui::ImageButton((ImTextureID)gResources->getAsset<Engine::Texture>(temp.id)->getID(), buttonSize, ImVec2(0, 0), ImVec2(1, 1), 3)) {
+                        // Your button logic here...
+                    }
+
+                    // Drag and drop source for the image button
+                    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                        ImGui::SetDragDropPayload("TEXTURE_PAYLOAD", &temp.id, sizeof(temp.id));
+                        ImGui::Text("Texture: %s", temp.id);
+                        ImGui::EndDragDropSource();
+                    }
+
+                    // Position the cursor for the text label below the image button
+                    ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + padding, cursorPos.y + buttonSize.y + padding + 6));
+                    ImGui::Text("%s", temp.id);
+
+                    if (ImGui::GetContentRegionAvail().x < cursorPos.x - ImGui::GetWindowPos().x + itemWidth * 2 + ImGui::GetStyle().ItemSpacing.x)
+                    {
+                        ImGui::SetCursorScreenPos(ImVec2(ImGui::GetCursorScreenPos().x, cursorPos.y + itemHeight));
+                        ImGui::NewLine();
+                    }
+                    else
+                        ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + itemWidth + ImGui::GetStyle().ItemSpacing.x, cursorPos.y));
+                } 
+                break;
+            }                 
         }
         ImGui::End();
     }

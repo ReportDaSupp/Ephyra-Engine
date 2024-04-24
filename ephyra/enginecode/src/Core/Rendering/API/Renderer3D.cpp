@@ -14,7 +14,7 @@
 
 namespace Engine
 {
-	vertexBufferLayout Renderer3DVertex::s_layout = vertexBufferLayout( { ShaderDataType::Float3, ShaderDataType::Float3, ShaderDataType::Float2 } );
+	vertexBufferLayout Renderer3DVertex::s_layout = vertexBufferLayout( { ShaderDataType::Float3, ShaderDataType::Float3, ShaderDataType::Float2, ShaderDataType::Int4, ShaderDataType::Float4 } );
 
 	std::shared_ptr<Renderer3D::InternalData> Renderer3D::s_data = nullptr;
 
@@ -198,10 +198,6 @@ namespace Engine
 	void Renderer3D::end()
 	{
 		flush();
-
-		//RendererCommon::colorFBO->unbind();
-
-		//RendererCommon::colorFBO->clear();
 	}
 
 	void Renderer3D::end(bool enabledEffects[16])

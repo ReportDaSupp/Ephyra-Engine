@@ -21,6 +21,20 @@ namespace Engine
 		glm::vec3 m_normal;
 		glm::vec2 m_uv;
 
+		unsigned int IDs[4] = { 0 };
+		float weights[4] = { 0.0f };
+
+		void addBoneData(unsigned int boneID, float weight) {
+			for (unsigned int i = 0; i < 4; ++i) {
+				if (weights[i] == 0.0) {
+					IDs[i] = boneID;
+					weights[i] = weight;
+					return;
+				}
+			}
+			assert(0);
+		}
+
 		Renderer3DVertex() = default;
 		Renderer3DVertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec2& uv) : m_pos(pos), m_normal(normal), m_uv(uv) {}
 
