@@ -3,6 +3,7 @@
 
 #include "Core/Rendering/API/Textures/Texture.h"
 
+
 namespace Engine
 {
 	class OpenGLTexture : public Texture
@@ -12,7 +13,7 @@ namespace Engine
 		OpenGLTexture(uint32_t width, uint32_t height, uint32_t channels, unsigned char* data);
 		virtual ~OpenGLTexture() override;
 		virtual void edit(uint32_t xOffset, uint32_t yOffset, uint32_t width, uint32_t height, unsigned char* data) override;
-		virtual void load(TextureUnitManager& TextUM, uint32_t& unit);
+		virtual void load(uint32_t unit) override;
 		virtual inline uint32_t getID() override { return m_OpenGl_ID; }
 		virtual inline uint32_t getWidth() override { return m_width; }
 		virtual inline uint32_t getHeight() override { return m_height; }

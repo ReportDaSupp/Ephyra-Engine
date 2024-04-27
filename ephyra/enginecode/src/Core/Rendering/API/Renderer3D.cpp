@@ -14,7 +14,7 @@
 
 namespace Engine
 {
-	vertexBufferLayout Renderer3DVertex::s_layout = vertexBufferLayout( { ShaderDataType::Float3, ShaderDataType::Float3, ShaderDataType::Float2 } );
+	vertexBufferLayout Renderer3DVertex::s_layout = vertexBufferLayout( { ShaderDataType::Float3, ShaderDataType::Float3, ShaderDataType::Float2, ShaderDataType::Float4, ShaderDataType::Float4 } );
 
 	std::shared_ptr<Renderer3D::InternalData> Renderer3D::s_data = nullptr;
 
@@ -161,25 +161,55 @@ namespace Engine
 		else
 		{
 			// Bind Shader
-			material->getShader()->useShader(s_data->VAO->getRenderID());
+			auto& shader = material->getShader();
 
-			if (material->isFlagSet(Material::flag_batched)) material->getShader()->uploadIntArray("u_texData", RendererCommon::textureUnits->data(), 32);
-			
-			uint32_t texUnit[4];
+			shader->useShader(s_data->VAO->getRenderID());
+
+			RendererCommon::colorFBO->bind();
+
+			uint32_t texUnit[5];
 
 			std::vector<std::shared_ptr<Texture>> textures = material->getTextures();
 			for (int i = 0; i < textures.size(); i++)
-				if (!RendererCommon::m_textUM->getUnit(textures[i]->getID(), texUnit[i]))
-				{
-					textures[i]->load(*RendererCommon::m_textUM, texUnit[i]);
-				}
+			{
+				RendererCommon::m_textUM->getUnit(textures[i]->getID(), texUnit[i]);
+				textures[i]->load(texUnit[i]);
+			}
+
+			shader->uploadIntArray("u_texData", RendererCommon::textureUnits->data(), 32);
+
+			if (!RendererCommon::lightPos.empty())
+				shader->uploadFloat3Array("u_lightPos", RendererCommon::lightPos.data(), 64);
+			else
+			{
+				std::vector<glm::vec3> temp;
+				for (int i = 0; i < 16; i++)
+					temp.push_back({ 0.f, 0.f, 0.f });
+				shader->uploadFloat3Array("u_lightPos", temp.data(), 4);
+			}
+
+			if (!RendererCommon::lightColour.empty())
+				shader->uploadFloat3Array("u_lightColour", RendererCommon::lightColour.data(), 64);
+			else
+			{
+				std::vector<glm::vec3> temp;
+				for (int i = 0; i < 16; i++)
+					temp.push_back({ 0.f, 0.f, 0.f });
+				shader->uploadFloat3Array("u_lightColour", temp.data(), 64);
+			}
+
+			shader->uploadInt("ImmediateMode", 1);
+
+			shader->uploadInt("AlbedoTex", texUnit[0]);
+			shader->uploadInt("RoughnessTex", texUnit[1]);
+			shader->uploadInt("MetallicTex", texUnit[2]);
+			shader->uploadInt("AOTex", texUnit[3]);
+			shader->uploadInt("NormalTex", texUnit[4]);
 
 			// Apply Material Uniforms (per draw uniforms)
-			material->getShader()->uploadMat4("u_model", model);
+			shader->uploadMat4("ModelMat", model);
 
-			material->getShader()->uploadInt("u_texData", texUnit[0]);
-
-			material->getShader()->uploadFloat4("u_tint", material->getTint());
+			shader->uploadFloat4("TintCol", material->getTint());
 
 			s_data->VAO->bindIndexBuffer();
 
@@ -309,9 +339,9 @@ namespace Engine
 
 			std::vector<std::shared_ptr<Texture>> textures = bqe.material->getTextures();
 			for (int i = 0; i < textures.size(); i++)
-			if (!RendererCommon::m_textUM->getUnit(textures[i]->getID(), texUnit[i]))
 			{
-				textures[i]->load(*RendererCommon::m_textUM, texUnit[i]);
+				RendererCommon::m_textUM->getUnit(textures[i]->getID(), texUnit[i]);
+				textures[i]->load(texUnit[i]);
 			}
 
 			s_data->albedoInstanceData.push_back(texUnit[0]);

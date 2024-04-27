@@ -2,8 +2,8 @@
 #pragma once
 
 #include "Core/Resources/Utility/TextureUnitManager.h"
-
 #include <cstdint>
+
 
 namespace Engine
 {
@@ -17,7 +17,7 @@ namespace Engine
 	public:
 		virtual ~Texture() = default;
 		virtual void edit(uint32_t xOffset, uint32_t yOffset, uint32_t width, uint32_t height, unsigned char* data) = 0;;
-		virtual void load(TextureUnitManager& TextUM, uint32_t& unit) = 0;
+		virtual void load(uint32_t unit) = 0;
 		virtual inline uint32_t getID() = 0;
 		virtual inline uint32_t getWidth() = 0;
 		virtual inline uint32_t getHeight() = 0;

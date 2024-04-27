@@ -111,7 +111,7 @@ namespace Engine
         // GUI Layer
         bool isGuiActive = true;
         bool eDOF = false;
-        bool eVolumetric = false;
+        bool eVolumetric = true;
         bool eBloom = true;
         bool eVignette = false;
         bool eToneMapping = true;
@@ -119,13 +119,16 @@ namespace Engine
         bool ePhysics = true;
 
         bool eViewport = true;
+        bool eTextureViewer = false;
         bool eHierarchy = true;
         bool eAssets= true;
         bool eKeyframe = true;
+        bool eFileDialog = false;
 
         bool eIntroMessage = true;
 
         std::shared_ptr<Texture> imGuiWelcomeImage;
+        std::shared_ptr<Texture> texViewerImage;
 
 
         std::string selectedObject;

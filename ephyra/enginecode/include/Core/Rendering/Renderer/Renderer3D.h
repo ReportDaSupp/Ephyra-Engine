@@ -14,15 +14,16 @@
 namespace Engine
 {
 
-	class Renderer3DVertex
-	{
-	public:
+	struct Renderer3DVertex {
 		glm::vec3 m_pos;
 		glm::vec3 m_normal;
 		glm::vec2 m_uv;
+		glm::vec4 boneIndices = glm::vec4(0); // Indices of bones affecting this vertex
+		glm::vec4 boneWeights = glm::vec4(0.0f); // Weights of each bone's influence
 
 		Renderer3DVertex() = default;
-		Renderer3DVertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec2& uv) : m_pos(pos), m_normal(normal), m_uv(uv) {}
+		Renderer3DVertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec2& uv, const glm::vec4& boneIndices, const glm::vec4& boneWeights)
+			: m_pos(pos), m_normal(normal), m_uv(uv), boneIndices(boneIndices), boneWeights(boneWeights) {}
 
 		static vertexBufferLayout s_layout;
 	};
@@ -35,13 +36,13 @@ namespace Engine
 			if (batched) setFlag(flag_batched);
 		}
 
-		Material(const std::shared_ptr<Shader>& shader, const std::vector<std::shared_ptr<Texture>>& textures, const glm::vec4& tint, bool batched = true) : m_shader(shader), m_textures(textures), m_tint(tint)
+		Material(const std::shared_ptr<Shader>& shader, const std::vector<std::shared_ptr<Texture>>& textures, const glm::vec4& tint, bool batched = 0) : m_shader(shader), m_textures(textures), m_tint(tint)
 		{
 			if (batched) setFlag(flag_batched);
 			setFlag(flag_texture | flag_tint);
 		}
 
-		Material(const std::shared_ptr<Shader>& shader, const std::vector<std::shared_ptr<Texture>>& textures, bool batched = true) : m_shader(shader), m_textures(textures), m_tint(glm::vec4(0.0f))
+		Material(const std::shared_ptr<Shader>& shader, const std::vector<std::shared_ptr<Texture>>& textures, bool batched = 0) : m_shader(shader), m_textures(textures), m_tint(glm::vec4(0.0f))
 		{
 			if (batched) setFlag(flag_batched);
 			setFlag(flag_texture);
@@ -61,6 +62,7 @@ namespace Engine
 
 		void setTexture(const std::shared_ptr<Texture>& texture, int loc) { m_textures[loc] = texture; }
 		void setTint(const glm::vec4& tint) { m_tint = tint; }
+		void setFlag(uint32_t flag) { m_flags = m_flags | flag; }
 
 		constexpr static uint32_t flag_batched = 1 << 0; //!< 0000000001
 		constexpr static uint32_t flag_texture = 1 << 1; //!< 0000000010
@@ -72,7 +74,7 @@ namespace Engine
 		std::shared_ptr<Shader> m_shader; //!< The material's shader
 		std::vector<std::shared_ptr<Texture>> m_textures; //!< Textures to be applied to the material
 		glm::vec4 m_tint; //!< Colour tint to be applied to the geometry
-		void setFlag(uint32_t flag) { m_flags = m_flags | flag; }
+		
 
 	};
 

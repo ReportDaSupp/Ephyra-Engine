@@ -5,15 +5,17 @@
 layout(location = 0) in vec3 a_vertexPosition;
 layout(location = 1) in vec3 a_vertexNormal;
 layout(location = 2) in vec2 a_texCoord;
-layout(location = 3) in mat4 a_model;
-layout(location = 7) in vec4 a_tint; // MATERIAL m_tint
-layout(location = 8) in int a_albedo;
-layout(location = 9) in int a_metallic;
-layout(location = 10) in int a_roughness;
-layout(location = 11) in int a_ao;
-layout(location = 12) in int a_normal;
+layout(location = 3) in vec4 a_boneIndices;
+layout(location = 4) in vec4 a_boneWeights;
+layout(location = 5) in mat4 a_model;
+layout(location = 9) in vec4 a_tint; // MATERIAL m_tint
+layout(location = 10) in int a_albedo;
+layout(location = 11) in int a_metallic;
+layout(location = 12) in int a_roughness;
+layout(location = 13) in int a_ao;
+layout(location = 14) in int a_normal;
 
-out vec3 fragPos;
+out vec3 worldPos;
 out vec3 norm;
 out vec2 texCoords;
 out vec4 tints;
@@ -32,21 +34,64 @@ layout (std140) uniform b_camera
 	mat4 u_view;
 };
 
+uniform int ImmediateMode;
+
+uniform int AlbedoTex;
+uniform int MetallicTex;
+uniform int RoughnessTex;
+uniform int AOTex;
+uniform int NormalTex;
+uniform mat4 ModelMat;
+uniform vec4 TintCol;
+
+uniform mat4 boneMatrices[100];
+
 void main()
 {
-	mat4 MVP = u_projection * u_view * a_model;
-	fragPos = vec3(a_model * vec4(a_vertexPosition, 1.0));
-	norm = mat3(transpose(inverse(a_model))) * a_vertexNormal;
-	texCoords = vec2(a_texCoord.x, a_texCoord.y);
-	tints = a_tint;
-	Albedo = a_albedo;
-	Metallic = a_metallic;
-	Roughness = a_roughness;
-    
-	Ao = a_ao;
-    Normal = a_normal;
-    model = a_model;
-	gl_Position =  MVP * vec4(a_vertexPosition,1.0);
+    if (ImmediateMode == 1)
+    {
+	    Albedo = AlbedoTex;
+	    Metallic = MetallicTex;
+	    Roughness = RoughnessTex;
+	    Ao = AOTex;
+        Normal = NormalTex;
+        model = ModelMat;
+        tints = vec4(1.0f); //TintCol;
+    }
+    else
+    {
+	    Albedo = a_albedo;
+	    Metallic = a_metallic;
+	    Roughness = a_roughness;
+	    Ao = a_ao;
+        Normal = a_normal;
+        model = a_model;
+        tints = a_tint;
+    }
+
+    mat4 boneTransform = 
+        boneMatrices[int(a_boneIndices[0])] * a_boneWeights[0] +
+        boneMatrices[int(a_boneIndices[1])] * a_boneWeights[1] +
+        boneMatrices[int(a_boneIndices[2])] * a_boneWeights[2] +
+        boneMatrices[int(a_boneIndices[3])] * a_boneWeights[3];
+
+    if (a_boneWeights[0] + a_boneWeights[1] + a_boneWeights[2] + a_boneWeights[3] <= 0)
+    {
+        mat4 MVP = u_projection * u_view * model;
+	    worldPos = vec3(model * vec4(a_vertexPosition, 1.0));
+	    norm = normalize(mat3(transpose(inverse(model))) * a_vertexNormal);
+	    texCoords = vec2(a_texCoord.x, a_texCoord.y);
+
+	    gl_Position = MVP * vec4(a_vertexPosition,1.0);
+    }
+    else
+    {
+	    worldPos = vec3(model * boneTransform * vec4(a_vertexPosition, 1.0));
+	    norm = normalize(mat3(transpose(inverse(model))) * a_vertexNormal);
+	    texCoords = vec2(a_texCoord.x, a_texCoord.y);
+
+	    gl_Position = u_projection * u_view * vec4(worldPos,1.0);
+    }
 }
 
 #region Geometry
@@ -56,7 +101,7 @@ void main()
 layout (triangles) in;
 layout (triangle_strip, max_vertices = 3) out;
 
-in vec3 fragPos[];
+in vec3 worldPos[];
 in vec3 norm[];
 in vec2 texCoords[];
 in vec4 tints[];
@@ -69,7 +114,7 @@ in flat int Normal[];
 
 in mat4 model[];
 
-out vec3 fragmentPos;
+out vec3 gworldPos;
 out vec3 normal;
 out vec2 texCoord;
 out vec4 tint;
@@ -86,37 +131,19 @@ out mat3 TBNMat;
 
 void main()
 {
-    vec3 edge0 = gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz;
-    vec3 edge1 = gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz;
-
-    //vec3 edge0 = fragPos[1].xyz - fragPos[0].xyz;
-    //vec3 edge1 = fragPos[2].xyz - fragPos[0].xyz;
-
-    vec2 deltaUV0 = texCoords[1] - texCoords[0];
-    vec2 deltaUV1 = texCoords[2] - texCoords[0];
-
-    float invDet = 1.0f / (deltaUV0.x * deltaUV1.y - deltaUV1.x * deltaUV0.y);
-
-    vec3 tangent = vec3(invDet * (deltaUV1.y * edge0 - deltaUV0.y * edge1));
-
-    vec3 T = normalize(vec3(model[0] * vec4(tangent, 0.0f)));
-    vec3 N = normalize(vec3(model[0] * vec4(norm[0], 0.0f)));
-    // re-orthogonalize T with respect to N
-    T = normalize(T - dot(T, N) * N);
-    // then retrieve perpendicular vector B with the cross product of T and N
-    vec3 B = cross(N, T);
-    mat3 TBN = transpose(mat3(T, B, N));
-
-    //vec3 size;
-    //size.x = length(vec3(model[0]));
-    //size.y = length(vec3(model[1]));
-    //size.z = length(vec3(model[2]));
-
     for(int i = 0; i < 3; i++)
     {
+        vec3 tangent, bitangent;
+
+        vec3 helper = (abs(norm[i].x) > 0.99) ? vec3(0, 1, 0) : vec3(1, 0, 0);
+
+        tangent = normalize(cross(norm[i], helper));
+        bitangent = normalize(cross(norm[i], tangent));
+
+        mat3 TBN = mat3(tangent, bitangent, norm[i]);
+
         gl_Position = gl_in[i].gl_Position;
-        fragmentPos = fragPos[i];
-        //texCoord = texCoords[i] * size.xy;
+        gworldPos = worldPos[i];
         texCoord = texCoords[i];
         normal = norm[i];
         tint = tints[i];
@@ -138,7 +165,7 @@ void main()
 			
 layout(location = 0) out vec4 FragColor;
 
-in vec3 fragmentPos;
+in vec3 gworldPos;
 in vec3 normal;
 in vec2 texCoord;
 in vec4 tint;
@@ -190,7 +217,7 @@ vec3 fresnelSchlick (float cosTheta, vec3 F0){
 uniform float scale = 0.0;
 
 vec2 calculateTriplanarTexCoords(vec3 worldPos, float texScale) {
-    vec3 n = normalize(normal);
+    vec3 n = normalize(TBNMat * normal);
 
     vec3 blendWeights = abs(n);
     blendWeights = blendWeights / dot(blendWeights, vec3(1.0));
@@ -220,24 +247,25 @@ void main()
     float scaleZ = length(vec3(Model[0].z, Model[1].z, Model[2].z));
     texScale = 1/min(min(scaleX, scaleY), scaleZ);
 
-    vec3 worldNormal = normalize((Model * vec4(normal, 0.0)).xyz);
-    newTexCoords = calculateTriplanarTexCoords(fragmentPos, texScale);
+    newTexCoords = calculateTriplanarTexCoords(gworldPos, texScale);
     }
     else
     {
-        newTexCoords = texCoord;
+        
         texScale = scale;
     }
+
+    newTexCoords = texCoord;
 
     vec3 albedo = texture(u_texData[texAlbedo], newTexCoords).xyz;
     float metallic = texture(u_texData[texMetallic], newTexCoords).r;
     float roughness = texture(u_texData[texRoughness], newTexCoords).r;
     float ao = texture(u_texData[texAo], newTexCoords).r;
     vec3 Normal = texture(u_texData[texNormal], newTexCoords).rgb;
-    Normal = Normal * 2.0 - 1.0;
+    Normal = normalize(TBNMat * (Normal * 2.0 - 1.0));
 
-	vec3 N = normalize(Normal);
-    vec3 V = normalize(TBNMat * u_viewPos - TBNMat * fragmentPos);
+	vec3 N = Normal;
+    vec3 V = normalize(gworldPos - u_viewPos);
 
     vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
@@ -248,9 +276,9 @@ void main()
 	for (int i = 0; i < 64; i++)
 	{
     // calculate per-light radiance
-    vec3 L = normalize(TBNMat * u_lightPos[i] - TBNMat * fragmentPos);
+    vec3 L = normalize(u_lightPos[i] - gworldPos);
     vec3 H = normalize(V + L);
-    float distance    = length(TBNMat *u_lightPos[i] - TBNMat *fragmentPos);
+    float distance    = length(u_lightPos[i] - gworldPos);
     float attenuation = 1.0 / (distance * distance);
     vec3 radiance     = u_lightColour[i] * attenuation;        
     
@@ -260,8 +288,7 @@ void main()
     vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
     
     vec3 kS = F;
-    vec3 kD = vec3(1.0) - kS;
-    kD *= 1.0 - metallic;	  
+    vec3 kD = vec3(1.0) - kS;  
     
     vec3 numerator    = NDF * G * F;
     float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
@@ -272,11 +299,9 @@ void main()
     Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
     }
 	
-    vec3 ambient = vec3(0.2) * albedo * ao;
-    vec3 color = ambient + Lo;
-	
-    //color = color / (color + vec3(1.0));
-    //color = pow(color, vec3(1.0/2.2));  
+    vec3 ambient = 0.1 * albedo * ao;
+    vec3 color =  ambient + Lo;
    
     FragColor = vec4(color, 1.0) * tint;
+    //FragColor = vec4(Normal * 0.5 + 0.5, 1.0);
 }

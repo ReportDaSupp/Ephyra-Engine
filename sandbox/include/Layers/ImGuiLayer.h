@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Ephyra.h"
 
@@ -86,6 +86,7 @@ void ImGuiLayer::OnAttach() {
     SetCustomImGuiStyle();
 
     gResources->imGuiWelcomeImage.reset(Engine::Texture::create("./assets/sprites/WelcomeImage.png"));
+    gResources->texViewerImage = Engine::RendererCommon::defaultTexture;
 }
 
 void ImGuiLayer::OnDetach() {
@@ -153,8 +154,8 @@ void ImGuiLayer::OnRender() {
         if (ImGui::Begin("Welcome Screen", &gResources->eIntroMessage, ImGuiWindowFlags_NoDecoration))
         {   
             ImGui::Text("Welcome to the Ephyra Animation Engine!");
-            uint32_t unit;
-            gResources->imGuiWelcomeImage->load(*Engine::RendererCommon::m_textUM, unit);
+
+            gResources->imGuiWelcomeImage->load(0);
             ImGui::Image((void*)(intptr_t)gResources->imGuiWelcomeImage->getID(), ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().x), ImVec2(0, 0), ImVec2(1, 1));
 
             static char loadName[128] = "";
@@ -186,142 +187,6 @@ void ImGuiLayer::OnRender() {
     {
         if (ImGui::Begin("Scene Hierarchy", &gResources->eHierarchy, windowFlags))
         {
-            ImGui::Separator();
-            if (ImGui::CollapsingHeader("Add Asset"))
-            {
-                std::string RenderTypes[] = { "Render3D", "Render2D", "Light"};
-                static std::string RenderType = "Not Selected";
-
-                if (ImGui::BeginCombo("Render Type", RenderType.c_str()))
-                {
-                    for (auto type : RenderTypes)
-                    {
-                        bool is_selected = (RenderType == type);
-                        if (ImGui::Selectable(type.c_str(), is_selected))
-                        {
-                            RenderType = type;
-                        }
-                        if (is_selected)
-                        {
-                           ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
-                        }
-                    }
-                    ImGui::EndCombo();
-                }
-                if (RenderTypes[0] == RenderType)
-                {   
-                    static char str1[128] = "";
-                    ImGui::InputTextWithHint("Object Name", "enter name here", str1, IM_ARRAYSIZE(str1));
-
-                    static std::string inputMaterial = "Not Selected";
-                    if (ImGui::BeginCombo("Material", inputMaterial.c_str())) // The second parameter is the label previewed before opening the combo.
-                    {
-
-                        for (auto& mat : gResources->getAllOf(Engine::SceneAsset::Type::Material))
-                        {
-                            bool is_selected = (inputMaterial == mat.id); // You can store your selection however you want, outside or inside your objects
-                            if (ImGui::Selectable(mat.id.c_str(), is_selected))
-                            {
-                                inputMaterial = mat.id;
-                            }
-                            if (is_selected)
-                            {
-                                ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
-                            }
-                        }
-                        ImGui::EndCombo();
-                    }
-
-                    static std::string inputGeometry = "Not Selected";
-                    if (ImGui::BeginCombo("Geometry", inputGeometry.c_str())) // The second parameter is the label previewed before opening the combo.
-                    {
-                        for (auto& geom : gResources->getAllOf(Engine::SceneAsset::Type::Geometry))
-                        {
-                            bool is_selected = (inputGeometry == geom.id); // You can store your selection however you want, outside or inside your objects
-                            if (ImGui::Selectable(geom.id.c_str(), is_selected))
-                            {
-                                inputGeometry = geom.id;
-                            }
-                            if (is_selected)
-                            {
-                                ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
-                            }
-                        }
-                        ImGui::EndCombo();
-                    }
-
-                    static glm::vec3 inputTranslation = {0.f, 0.f, 0.f};
-                    static glm::vec3 inputRotation = { 0.f, 0.f, 0.f };
-                    static glm::vec3 inputScale = { 1.f, 1.f, 1.f };
-
-                    ImGui::DragFloat3("Translation: ", &inputTranslation.x);
-                    ImGui::DragFloat3("Rotation: ", &inputRotation.x);
-                    ImGui::DragFloat3("Scale: ", &inputScale.x);
-
-                    static bool Emmissive = false;
-                    ImGui::Checkbox("Emmissive", &Emmissive);
-
-                    if (inputMaterial != "Not Selected" && inputGeometry != "Not Selected")
-                    {
-                        if (ImGui::Button("Instance Asset"))
-                        {
-                            auto newAsset = gResources->m_registry.create();
-                            gResources->m_registry.emplace<Engine::TagComponent>(newAsset, (std::string)(str1), Engine::TagType::Render3D);
-                            gResources->m_registry.emplace<Engine::StateComponent>(newAsset, true);
-                            gResources->m_registry.emplace<Engine::TransformComponent>(newAsset, inputTranslation, inputRotation, inputScale);
-                            //gResources->m_registry.emplace<Engine::MeshRendererComponent>(newAsset, (gResources->getAsset<Engine::Geometry>(inputGeometry), (gResources->getAsset<Engine::Material>(inputMaterial)));
-                            //gResources->m_registry.emplace<Engine::GeometryComponent>(newAsset, (gResources->getAsset<Engine::Geometry>(inputGeometry)));
-
-                            if (Emmissive)
-                                gResources->m_registry.emplace<Engine::EmmissiveComponent>(newAsset, glm::vec3({ 30.f,30.f,30.f }), glm::vec3{ 0.f,0.f,0.f });
-
-                            inputMaterial = "Not Selected";
-                            inputGeometry = "Not Selected";
-                            RenderType = "Not Selected";
-                            
-                            inputTranslation = { 0.f, 0.f, 0.f };
-                            inputRotation = { 0.f, 0.f, 0.f };
-                            inputScale = { 1.f, 1.f, 1.f };
-                            
-                            Emmissive = false;
-                        }
-                    }
-                    
-                }
-                else if (RenderTypes[1] == RenderType)
-                {
-
-                }
-                else if (RenderTypes[2] == RenderType)
-                {
-                    static char str1[128] = "";
-                    ImGui::InputTextWithHint("Light Name", "enter name here", str1, IM_ARRAYSIZE(str1));
-
-                    static glm::vec3 iPosition = { 0.f, 0.f, 0.f };
-                    static glm::vec3 iColor = { 1.f, 1.f, 1.f };
-
-                    ImGui::DragFloat3("Position: ", &iPosition.x, 0.1f);
-                    ImGui::DragFloat3("Color: ", &iColor.x, 0.1f);
-
-                        if (ImGui::Button("Instance Asset"))
-                        {
-                            auto newAsset = gResources->m_registry.create();
-                            gResources->m_registry.emplace<Engine::TagComponent>(newAsset, (std::string)(str1), Engine::TagType::Light);
-                            gResources->m_registry.emplace<Engine::EmmissiveComponent>(newAsset, iColor, iPosition);
-                            gResources->m_registry.emplace<Engine::StateComponent>(newAsset, true);
-
-                            RenderType = "Not Selected";
-
-                            iPosition = { 0.f, 0.f, 0.f };
-                            iColor = { 1.f, 1.f, 1.f };
-                        }
-                }
-                else
-                {
-
-                }
-            }
-            ImGui::Separator();
             ImGui::TextColored(SubTitleColor, "3D Objects: ");
             auto view = gResources->m_registry.view<Engine::TagComponent>();
             for (auto tagEntity : view)
@@ -451,6 +316,44 @@ void ImGuiLayer::OnRender() {
         }
         ImGui::End();
     }
+    if (gResources->eTextureViewer)
+    {
+        if (ImGui::Begin("Texture Viewer", &gResources->eTextureViewer, windowFlags)) {
+            uint32_t temp;
+
+            ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+            ImVec2 vMax = ImGui::GetWindowContentRegionMax();
+
+            vMin.x += ImGui::GetWindowPos().x;
+            vMin.y += ImGui::GetWindowPos().y;
+            vMax.x += ImGui::GetWindowPos().x;
+            vMax.y += ImGui::GetWindowPos().y;
+
+            ImVec2 currentViewportSize = ImVec2(vMax.x - vMin.x, vMax.y - vMin.y);
+
+            float originalImageWidth = gResources->texViewerImage->getWidthf();
+            float originalImageHeight = gResources->texViewerImage->getHeightf();
+            float aspectRatio = originalImageWidth / originalImageHeight;
+
+            float scaledWidth, scaledHeight;
+            if (currentViewportSize.x / currentViewportSize.y > aspectRatio) {
+                scaledHeight = currentViewportSize.y;
+                scaledWidth = scaledHeight * aspectRatio;
+            }
+            else {
+                scaledWidth = currentViewportSize.x;
+                scaledHeight = scaledWidth / aspectRatio;
+            }
+
+            ImVec2 imageRenderSize = ImVec2(scaledWidth, scaledHeight);
+
+            ImVec2 viewerStartPos = ImGui::GetCursorScreenPos();
+            ImVec2 viewerSize = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
+
+            ImGui::Image((void*)(intptr_t)gResources->texViewerImage->getID(), imageRenderSize, ImVec2(0, 1), ImVec2(1, 0));
+        }
+        ImGui::End();
+    }
     if (gResources->eKeyframe)
     {
         if (ImGui::Begin("Keyframe Timeline"))
@@ -523,7 +426,7 @@ void ImGuiLayer::OnRender() {
     }
     if (gResources->eAssets)
     {
-        if (ImGui::Begin("Assets", &gResources->eAssets, windowFlags))
+        if (ImGui::Begin("Textures", &gResources->eAssets, windowFlags))
         {
             for (auto temp : gResources->getAll())
             {
@@ -571,7 +474,8 @@ void ImGuiLayer::OnRender() {
                         // Offset cursor for image button
                         ImGui::SetCursorScreenPos(ImVec2(cursorPos.x + padding, cursorPos.y + padding));
                         if (ImGui::ImageButton((ImTextureID)gResources->getAsset<Engine::Texture>(temp.id)->getID(), buttonSize, ImVec2(0,0), ImVec2(1, 1), 3)) {
-                            // Your button logic here...
+                            gResources->eTextureViewer = true;
+                            gResources->texViewerImage = gResources->getAsset<Engine::Texture>(temp.id);
                         }
 
                         // Drag and drop source for the image button
@@ -602,7 +506,11 @@ void ImGuiLayer::OnRender() {
                     }
                     case Engine::SceneAsset::Type::Material:
                     {
-                        //ImGui::Text("Material: %s", temp.id);
+                        /*ImGui::Text("Material: %s", temp.id);
+                        auto& textures = gResources->getAsset<Engine::Material>(temp.id)->getTextures();
+                        for (int i = 0; i < textures.size(); i++)
+                            ImGui::Text("Textures: %i", textures[i]->getID());*/
+
                         break;
                     }
                     case Engine::SceneAsset::Type::Geometry:
@@ -653,6 +561,70 @@ void ImGuiLayer::OnRender() {
                         name += saveName[i];
                     }
                     glfwSetWindowTitle((GLFWwindow*)gResources->m_window->getNativeWindow(), name.c_str());
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::Separator();
+            if (ImGui::BeginMenu("Load Asset: "))
+            {
+                static char assetPath[128] = "./assets/models/";
+                static char assetName[128] = "";
+                static glm::vec3 Translation = { 0, 0, 0 };
+                static glm::vec3 Rotation = { 0, 0, 0 };
+                static glm::vec3 Scale = { 1, 1, 1 };
+                static bool safeName = true;
+                ImGui::InputTextWithHint("Asset Path: ", "Enter Asset Filepath", assetPath, IM_ARRAYSIZE(assetPath));
+                ImGui::InputTextWithHint("Asset Name: ", "Enter Asset Name", assetName, IM_ARRAYSIZE(assetName));
+                ImGui::InputFloat3("Translation: ", &Translation.x);
+                ImGui::InputFloat3("Rotation: ", &Rotation.x);
+                ImGui::InputFloat3("Scale: ", &Scale.x);
+                if (safeName)
+                {
+                    if (ImGui::Button("Load Asset"))
+                    {
+                        auto view = gResources->m_registry.view<Engine::TagComponent>();
+                        for (auto entity : view)
+                            if (assetName == gResources->m_registry.get<Engine::TagComponent>(entity).Tag)
+                            {
+                                safeName = false;
+                            }
+                        if (safeName)
+                        {
+                            auto asset = gResources->m_registry.create();
+                            gResources->m_registry.emplace<Engine::TagComponent>(asset, assetName, Engine::TagType::Render3D);
+                            gResources->m_registry.emplace<Engine::StateComponent>(asset, true);
+                            gResources->m_registry.emplace<Engine::TransformComponent>(asset, Translation, Rotation, Scale);
+                            gResources->m_registry.emplace<Engine::MeshRendererComponent>(asset, assetPath, assetName);
+                            Translation = { 0, 0, 0 };
+                            Rotation = { 0, 0, 0 };
+                            Scale = { 1, 1, 1 };
+                            //gResources->m_registry.emplace<Engine::RigidBodyComponent>(asset, asset, rp3d::BodyType::STATIC);
+                            //gResources->m_registry.emplace<Engine::BoxColliderComponent>(asset, asset, glm::vec3(88.f, 1.0f, 68.f));
+                        }
+                    }
+                }
+                else if (ImGui::Button("Invalid Name"))
+                {
+                    safeName = true;
+                    auto view = gResources->m_registry.view<Engine::TagComponent>();
+                    for (auto entity : view)
+                        if (assetName == gResources->m_registry.get<Engine::TagComponent>(entity).Tag)
+                        {
+                            safeName = false;
+                        }
+                    if (safeName)
+                    {
+                        auto asset = gResources->m_registry.create();
+                        gResources->m_registry.emplace<Engine::TagComponent>(asset, assetName, Engine::TagType::Render3D);
+                        gResources->m_registry.emplace<Engine::StateComponent>(asset, true);
+                        gResources->m_registry.emplace<Engine::TransformComponent>(asset, Translation, Rotation, Scale);
+                        gResources->m_registry.emplace<Engine::MeshRendererComponent>(asset, assetPath, assetName);
+                        Translation = { 0, 0, 0 };
+                        Rotation = { 0, 0, 0 };
+                        Scale = { 1, 1, 1 };
+                        //gResources->m_registry.emplace<Engine::RigidBodyComponent>(asset, asset, rp3d::BodyType::STATIC);
+                        //gResources->m_registry.emplace<Engine::BoxColliderComponent>(asset, asset, glm::vec3(88.f, 1.0f, 68.f));
+                    }
                 }
                 ImGui::EndMenu();
             }

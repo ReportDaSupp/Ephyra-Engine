@@ -172,7 +172,7 @@ namespace Engine
 		uint32_t m_unit;
 		RendererCommon::m_textUM->getUnit(texture.getTextureID(), m_unit);
 
-		texture.getBaseTexture()->load(*RendererCommon::m_textUM, m_unit);
+		texture.getBaseTexture()->load(m_unit);
 		s_data->model = glm::scale(glm::translate(glm::mat4(1.0f), quad.m_translate), quad.m_scale);
 
 		RendererCommon::m_textUM->getUnit(texture.getBaseTexture()->getID(), texUnit);

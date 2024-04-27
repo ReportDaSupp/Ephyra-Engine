@@ -30,7 +30,6 @@ namespace Engine {
 						return;
 					}
 				}
-				assert(0);
 			}
 		};
 
@@ -84,14 +83,9 @@ namespace Engine {
 			Skeleton() {}
 		};
 
-		static std::shared_ptr<ResourceManager> s_resources = nullptr;
+		static std::shared_ptr<ResourceManager> gResources = nullptr;
 		static std::shared_ptr<Shader> s_shader = nullptr;
-
-		static std::vector<TempMesh> s_preLoaded;
-		static std::string s_filePath;
-		static std::shared_ptr<Material> s_material = nullptr;
-		static std::shared_ptr<Geometry> s_geo;
-		static std::string s_ID;
+		static int meshCount = 0;
 
 		glm::mat4 AssimpToGLMMatrix(const aiMatrix4x4& apMat) {
 			glm::mat4 glmMat;
@@ -122,13 +116,28 @@ namespace Engine {
 				for (unsigned int j = 0; j < ai_anim->mNumChannels; j++) {
 					aiNodeAnim* channel = ai_anim->mChannels[j];
 					std::vector<Keyframe> keyframes;
-					// Process position keyframes
+
+					// Process all keyframes for this channel
 					for (unsigned int k = 0; k < channel->mNumPositionKeys; k++) {
-						aiVector3D ai_pos = channel->mPositionKeys[k].mValue;
-						float timeStamp = (float)channel->mPositionKeys[k].mTime;
-						//keyframes.push_back(Keyframe(timeStamp, AssimpToGLMVec(ai_pos), glm::quat(0,0,0,0), glm::vec3(0,0,0)));
+						Keyframe keyframe;
+						keyframe.timeStamp = (float)channel->mPositionKeys[k].mTime;
+						keyframe.position = AssimpToGLMVec(channel->mPositionKeys[k].mValue);
+
+						if (k < channel->mNumRotationKeys) {
+							keyframe.rotation = glm::quat(
+								channel->mRotationKeys[k].mValue.w,
+								channel->mRotationKeys[k].mValue.x,
+								channel->mRotationKeys[k].mValue.y,
+								channel->mRotationKeys[k].mValue.z
+							);
+						}
+
+						if (k < channel->mNumScalingKeys) {
+							keyframe.scale = AssimpToGLMVec(channel->mScalingKeys[k].mValue);
+						}
+
+						keyframes.push_back(keyframe);
 					}
-					// Similarly, process rotation and scaling keyframes
 
 					anim.boneKeyframes[channel->mNodeName.C_Str()] = keyframes;
 				}
@@ -137,8 +146,11 @@ namespace Engine {
 			}
 		}
 
-		static void ASSIMPProcessMesh(aiMesh* mesh, const aiScene* scene)
+		static void ASSIMPProcessMesh(aiMesh* mesh, const aiScene* scene, std::string ID, std::string filePath)
 		{
+			if (meshCount > 0)
+				ID += std::to_string(meshCount);
+			meshCount++;
 			TempMesh tmpMesh;
 
 			tmpMesh.vertices.reserve(mesh->mNumVertices);
@@ -146,12 +158,14 @@ namespace Engine {
 			bool hasPositions = mesh->HasPositions();
 			bool hasNormals = mesh->HasNormals();
 			bool hasTangents = mesh->HasTangentsAndBitangents();
+			bool hasBones = mesh->HasBones();
 			uint32_t numColourChannels = mesh->GetNumColorChannels();
 			uint32_t numUVChannels = mesh->GetNumUVChannels();
 
 			for (uint32_t i = 0; i < mesh->mNumVertices; i++)
 			{
 				glm::vec3 position, normal, tangent, biTangent;
+				glm::vec4 boneIndices, boneWeights;
 				std::vector<glm::vec4> colours(numColourChannels);
 				std::vector<glm::vec2> texCoords(numUVChannels);
 
@@ -171,7 +185,7 @@ namespace Engine {
 					texCoords[j] = glm::vec2(mesh->mTextureCoords[j][i].x, mesh->mTextureCoords[j][i].y);
 				}
 
-				tmpMesh.vertices.push_back(Renderer3DVertex(position, normal, texCoords[0]));
+				tmpMesh.vertices.push_back(Renderer3DVertex(position, normal, texCoords[0], boneIndices, boneWeights));
 
 
 			}
@@ -242,62 +256,74 @@ namespace Engine {
 
 					if (type == aiTextureType_DIFFUSE)
 					{
-						std::string tempFilepath = s_filePath;
-						tempFilepath.resize(s_filePath.rfind('/')+1);
+						std::string tempFilepath = filePath;
+						tempFilepath.resize(filePath.rfind('/') + 1);
 						std::string fn(str.C_Str());
-						std::shared_ptr<Texture> tmp;
-						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
 						std::string tag;
 						for (int i = fn.rfind('/') + 1; i < fn.size(); i++)
 							tag += fn[i];
 						tag.resize(tag.rfind('.'));
-						tmpMesh.diffuseTexture = s_resources->addAsset(s_ID + tag, SceneAsset::Type::Texture, tmp);
-
+						if (!gResources->getAsset<Texture>(ID + tag)) {
+							std::shared_ptr<Texture> tmp;
+							tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
+							tmpMesh.diffuseTexture = gResources->addAsset(ID + tag, SceneAsset::Type::Texture, tmp);
+						}
+						else
+							tmpMesh.diffuseTexture = gResources->getAsset<Texture>(ID + tag);
 					}
 
 					if (type == aiTextureType_SPECULAR)
 					{
-						std::string tempFilepath = s_filePath;
-						tempFilepath.resize(s_filePath.rfind('/') + 1);
+						std::string tempFilepath = filePath;
+						tempFilepath.resize(filePath.rfind('/') + 1);
 						std::string fn(str.C_Str());
-						std::shared_ptr<Texture> tmp;
-						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
 						std::string tag;
 						for (int i = fn.rfind('/') + 1; i < fn.size(); i++)
 							tag += fn[i];
 						tag.resize(tag.rfind('.'));
-						tmpMesh.specularTexture = s_resources->addAsset(s_ID + tag, SceneAsset::Type::Texture, tmp);
-
+						if (!gResources->getAsset<Texture>(ID + tag)) {
+							std::shared_ptr<Texture> tmp;
+							tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
+							tmpMesh.specularTexture = gResources->addAsset(ID + tag, SceneAsset::Type::Texture, tmp);
+						}
+						else
+							tmpMesh.specularTexture = gResources->getAsset<Texture>(ID + tag);
 					}
 
 					if (type == aiTextureType_AMBIENT)
 					{
-						std::string tempFilepath = s_filePath;
-						tempFilepath.resize(s_filePath.rfind('/') + 1);
+						std::string tempFilepath = filePath;
+						tempFilepath.resize(filePath.rfind('/') + 1);
 						std::string fn(str.C_Str());
-						std::shared_ptr<Texture> tmp;
-						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
 						std::string tag;
 						for (int i = fn.rfind('/') + 1; i < fn.size(); i++)
 							tag += fn[i];
 						tag.resize(tag.rfind('.'));
-						tmpMesh.ambientTexture = s_resources->addAsset(s_ID + tag, SceneAsset::Type::Texture, tmp);
-
+						if (!gResources->getAsset<Texture>(ID + tag)) {
+							std::shared_ptr<Texture> tmp;
+							tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
+							tmpMesh.ambientTexture = gResources->addAsset(ID + tag, SceneAsset::Type::Texture, tmp);
+						}
+						else
+							tmpMesh.ambientTexture = gResources->getAsset<Texture>(ID + tag);
 					}
 
 					if (type == aiTextureType_HEIGHT)
 					{
-						std::string tempFilepath = s_filePath;
-						tempFilepath.resize(s_filePath.rfind('/') + 1);
+						std::string tempFilepath = filePath;
+						tempFilepath.resize(filePath.rfind('/') + 1);
 						std::string fn(str.C_Str());
-						std::shared_ptr<Texture> tmp;
-						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
 						std::string tag;
 						for (int i = fn.rfind('/') + 1; i < fn.size(); i++)
 							tag += fn[i];
 						tag.resize(tag.rfind('.'));
-						tmpMesh.normalTexture = s_resources->addAsset(s_ID + tag, SceneAsset::Type::Texture, tmp);
-
+						if (!gResources->getAsset<Texture>(ID + tag)) {
+							std::shared_ptr<Texture> tmp;
+							tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
+							tmpMesh.normalTexture = gResources->addAsset(ID + tag, SceneAsset::Type::Texture, tmp);
+						}
+						else
+							tmpMesh.normalTexture = gResources->getAsset<Texture>(ID + tag);
 					}
 
 
@@ -311,8 +337,6 @@ namespace Engine {
 			float floatValue;
 			aiColor3D colorValue;
 
-			//if (AI_SUCCESS == material->Get(AI_MATKEY_NAME, stringValue)) Log::error("Material name: {0}", stringValue.C_Str());
-
 			if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, colorValue))
 			{
 				if (!tmpMesh.diffuseTexture)
@@ -322,120 +346,50 @@ namespace Engine {
 
 			}
 
-
 			Engine::Geometry tmpGeo;
-			//Sort out geometry and material
-			Renderer3D::addGeometry(tmpMesh.vertices, tmpMesh.indices, tmpGeo);
+			if (!gResources->getAsset<Geometry>(ID + "Geometry")) {
+				Renderer3D::addGeometry(tmpMesh.vertices, tmpMesh.indices, tmpGeo);
+				gResources->addAsset(ID + "Geometry", Engine::SceneAsset::Type::Geometry, std::make_shared<Geometry>(tmpGeo));
+			}
 
-			s_geo = std::make_shared<Geometry>(tmpGeo);
+			
 
-			if (tmpMesh.diffuseTexture)
+			std::vector<std::shared_ptr<Texture>> textures;
+			textures.resize(5);
+
+			for (int i = 0; i < 5; i++)
+				textures[i] = RendererCommon::defaultTexture;
+
+			if (!gResources->getAsset<Material>(ID + "Material"))
 			{
-				if (!s_resources->getAsset<Material>(s_ID + "Material"))
+
+				if (tmpMesh.diffuseTexture)
 				{
-					std::vector<std::shared_ptr<Texture>> textures;
-					textures.resize(5);
-					
-					for (int i = 0; i < 5; i++)
-						textures[i] = RendererCommon::defaultTexture;
-					
 					textures[0] = tmpMesh.diffuseTexture;
-
-					s_material.reset(new Material(s_shader, textures));
-
-					//Add material to resource manager
-					s_resources->addAsset(s_ID + "Material", Engine::SceneAsset::Type::Material, s_material);
 				}
-				else
+				if (tmpMesh.specularTexture)
 				{
-					auto& mat =  s_resources->getAsset<Material>(s_ID + "Material");
-					mat->setTexture(tmpMesh.diffuseTexture, 0);
-				}
-
-			}
-			if (tmpMesh.specularTexture)
-			{
-				if (!s_resources->getAsset<Material>(s_ID + "Material"))
-				{
-					std::vector<std::shared_ptr<Texture>> textures;
-					textures.resize(5);
-					
-					for (int i = 0; i < 5; i++)
-						textures[i] = RendererCommon::defaultTexture;
-					
 					textures[1] = tmpMesh.specularTexture;
-
-					s_material.reset(new Material(s_shader, textures));
-
-					//Add material to resource manager
-					s_resources->addAsset(s_ID + "Material", Engine::SceneAsset::Type::Material, s_material);
 				}
-				else
+				if (tmpMesh.ambientTexture)
 				{
-					auto& mat = s_resources->getAsset<Material>(s_ID + "Material");
-					mat->setTexture(tmpMesh.specularTexture, 1);
-				}
-
-			}
-			if (tmpMesh.ambientTexture)
-			{
-				if (!s_resources->getAsset<Material>(s_ID + "Material"))
-				{
-					std::vector<std::shared_ptr<Texture>> textures;
-					textures.resize(5);
-					
-					for (int i = 0; i < 5; i++)
-						textures[i] = RendererCommon::defaultTexture;
-					s_material.reset(new Material(s_shader, textures));
-					
 					textures[3] = tmpMesh.ambientTexture;
-
-					//Add material to resource manager
-					s_resources->addAsset(s_ID + "Material", Engine::SceneAsset::Type::Material, s_material);
 				}
-				else
+				if (tmpMesh.normalTexture)
 				{
-					auto& mat = s_resources->getAsset<Material>(s_ID + "Material");
-					mat->setTexture(tmpMesh.ambientTexture, 3);
-				}
-
-			}
-			if (tmpMesh.normalTexture)
-			{
-				if (!s_resources->getAsset<Material>(s_ID + "Material"))
-				{
-					std::vector<std::shared_ptr<Texture>> textures;
-					textures.resize(5);
-
-					for (int i = 0; i < 5; i++)
-						textures[i] = RendererCommon::defaultTexture;
-					s_material.reset(new Material(s_shader, textures));
-
 					textures[4] = tmpMesh.normalTexture;
-
-					//Add material to resource manager
-					s_resources->addAsset(s_ID + "Material", Engine::SceneAsset::Type::Material, s_material);
 				}
-				else
-				{
-					auto& mat = s_resources->getAsset<Material>(s_ID + "Material");
-					mat->setTexture(tmpMesh.normalTexture, 4);
-				}
-
+				gResources->addAsset(ID + "Material", Engine::SceneAsset::Type::Material, std::make_shared<Material>(s_shader, textures, false));
 			}
-			if (!tmpMesh.diffuseTexture)
+			else
 			{
-				//Add material to resource manager
-				s_resources->addAsset(s_ID + "Material", Engine::SceneAsset::Type::Material, s_material);
-
+				auto& mat = gResources->getAsset<Material>(ID + "Material");
+				mat->setFlag(mat->flag_batched);
 			}
-
-			//Add geometry to resource manager
-			s_resources->addAsset(s_ID + "Geometry", Engine::SceneAsset::Type::Geometry, s_geo);
 
 		}
 
-		static void ASSIMPProcessNode(aiNode* node, const aiScene* scene)
+		static void ASSIMPProcessNode(aiNode* node, const aiScene* scene, std::string ID, std::string filepath)
 		{
 			std::string parentName = "Null";
 			if (node->mParent != nullptr) parentName = node->mParent->mName.C_Str();
@@ -446,22 +400,20 @@ namespace Engine {
 			for (uint32_t i = 0; i < node->mNumMeshes; i++)
 			{
 				aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-				ASSIMPProcessMesh(mesh, scene);
+				ASSIMPProcessMesh(mesh, scene, ID, filepath);
 			}
 
 			//  Process child nodes
 			for (uint32_t i = 0; i < node->mNumChildren; i++)
 			{
-				ASSIMPProcessNode(node->mChildren[i], scene);
+				ASSIMPProcessNode(node->mChildren[i], scene, ID, filepath);
 			}
 		}
 
 		static void ASSIMPLoad(const std::string& filepath, std::string id, std::shared_ptr<Shader> shader = nullptr)
 		{
-			s_resources = Engine::ResourceManager::getInstance();
-			s_ID = id;
-			s_filePath = filepath;
-
+			gResources = Engine::ResourceManager::getInstance();
+			meshCount = 0;
 
 			if (shader != nullptr)
 			{
@@ -469,7 +421,7 @@ namespace Engine {
 			}
 			else
 			{
-				s_shader = s_resources->getAsset<Engine::Shader>("PBR");
+				s_shader = gResources->getAsset<Engine::Shader>("PBR");
 			}
 
 			Assimp::Importer importer;
@@ -480,7 +432,10 @@ namespace Engine {
 				Log::error("Cannot load: {0}, ASSIMP Error {1}", filepath, importer.GetErrorString());
 				return;
 			}
-			ASSIMPProcessNode(scene->mRootNode, scene);
+			//Skeleton skeleton;
+			//processAnimations(scene, skeleton);
+			ASSIMPProcessNode(scene->mRootNode, scene, id, filepath);
+			
 
 		}
 	}

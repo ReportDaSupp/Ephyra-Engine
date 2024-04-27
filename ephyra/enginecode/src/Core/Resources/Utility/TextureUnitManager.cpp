@@ -27,7 +27,7 @@ namespace Engine
 			}
 		}
 		//Texture Unit is not bound
-
+		
 		// Is there space in the buffer?
 		if (m_full) clear();
 

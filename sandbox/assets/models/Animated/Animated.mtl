@@ -1,0 +1,14 @@
+newmtl blinn1SG
+Kd 1 1 1
+Ka 0 0 0
+Ks 0 0 0
+Ke 0 0 0
+Tf 1 1 1
+d 1
+Ni 1
+illum 1
+map_Kd Textures/Albedo.png
+map_Ka Textures/AO.png
+map_Ks Textures/Roughness.png
+map_Bump Textures/Normal.png
+disp Textures/Displacement.png

@@ -4,6 +4,7 @@
 #include "Platform/OpenGl/OpenGLTexture.h"
 #include <glad/glad.h>
 #include "Core/Systems/Utility/Log.h"
+#include "Core/Rendering/API/Global/RendererCommon.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -48,7 +49,7 @@ namespace Engine
 		}
 	}
 
-	void OpenGLTexture::load(TextureUnitManager& TextUM, uint32_t& unit)
+	void OpenGLTexture::load(uint32_t unit)
 	{
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(GL_TEXTURE_2D, m_OpenGl_ID);
