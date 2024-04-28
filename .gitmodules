@@ -61,3 +61,6 @@
 [submodule "vendor/soLoud"]
 	path = vendor/soLoud
 	url = https://github.com/IMAT3905/soloud.git
+[submodule "vendor/assimp"]
+	path = vendor/assimp
+	url = https://github.com/assimp/assimp.git
