@@ -171,11 +171,16 @@ void EngineLayer::OnRender(){
 
     for (auto& entity : view2)
     {
-        auto& mat = view2.get<Engine::MeshRendererComponent>(entity).Material;
-        auto& geom = view2.get<Engine::MeshRendererComponent>(entity).Geometry;
+        auto& mesh = view2.get<Engine::MeshRendererComponent>(entity);
         auto& trans = view2.get<Engine::TransformComponent>(entity);
         auto& vis = view2.get<Engine::StateComponent>(entity).State;
-        if (vis) Engine::Renderer3D::submit(*geom, mat, trans);
+        if (vis)
+        {
+            for (int i = 0; i < mesh.Geometry.size(); i++)
+            {
+                Engine::Renderer3D::submit(*mesh.Geometry[i], mesh.Material[i], trans);
+            }
+        }
     }
 
     bool enabledEffects[16] = { gResources->eDOF, gResources->eVolumetric, gResources->eBloom, gResources->eToneMapping, gResources->eVignette,gResources->eRG,1,1,1,1,1,1,1,1,1,1 };

@@ -49,21 +49,24 @@ namespace Engine
 
 	struct MeshRendererComponent
 	{
-		std::shared_ptr<Engine::Material> Material;
-		std::shared_ptr<Engine::Geometry> Geometry;
+		std::vector<std::shared_ptr<Engine::Material>> Material;
+		std::vector<std::shared_ptr<Engine::Geometry>> Geometry;
 
 		std::string LoaderPath;
 
 		MeshRendererComponent() = default;
 		MeshRendererComponent(const MeshRendererComponent&) = default;
-		MeshRendererComponent(const std::shared_ptr<Engine::Geometry>& geometry, const std::shared_ptr<Engine::Material>& material, std::string filepath) : Geometry(geometry), Material(material), LoaderPath(filepath) {}
 		MeshRendererComponent(std::string filepath, std::string ID) 
 		{ 
 			std::shared_ptr<ResourceManager> resources;
 			resources = ResourceManager::getInstance();
 			Engine::Loader::ASSIMPLoad(filepath, ID); 
-			Geometry = resources->getAsset<Engine::Geometry>(ID + "Geometry");
-			Material = resources->getAsset<Engine::Material>(ID + "Material");
+			for (int i = 0; i < resources->MappedIDs[filepath].size(); i++)
+			{
+				std::string tempID = resources->MappedIDs[filepath][i];
+				Geometry.push_back(resources->getAsset<Engine::Geometry>(tempID + "Geometry"));
+				Material.push_back(resources->getAsset<Engine::Material>(tempID + "Material"));
+			}
 			LoaderPath = filepath;
 		}
 	};

@@ -9,6 +9,7 @@
 #include <string>
 #include <glm/gtc/type_ptr.hpp>
 #include <src/entt/entt.hpp>
+#include <unordered_map>
 
 namespace Engine
 {
@@ -107,6 +108,8 @@ namespace Engine
         glm::vec3 m_viewPos3D; /**< The 3D view position. */
         glm::mat4 m_view2D;
         glm::mat4 m_projection2D;
+
+        std::unordered_map<std::string, std::vector<std::string>> MappedIDs;
 
         // GUI Layer
         bool isGuiActive = true;

@@ -171,6 +171,44 @@
                 ]
             },
             "id": 4
+        },
+        {
+            "MeshRendererComponent": {
+                "FilePath": [
+                    "./assets/models/Door/Door.obj"
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Door2"
+                ],
+                "Type": [
+                    2
+                ]
+            },
+            "TransformComponent": {
+                "Euler": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "Translation": [
+                    -4.849999904632568,
+                    1.899999976158142,
+                    -3.0
+                ]
+            },
+            "id": 1048581
         }
     ]
 }

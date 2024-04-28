@@ -170,6 +170,15 @@ void ImGuiLayer::OnRender() {
                 }
                 glfwSetWindowTitle((GLFWwindow*)gResources->m_window->getNativeWindow(), name.c_str());
                 gResources->eIntroMessage = false;
+                /*for (int i = 0; i < 25; i++)
+                {
+                    std::string assetName = "Grass" + std::to_string(i);
+                    auto asset = gResources->m_registry.create();
+                    gResources->m_registry.emplace<Engine::TagComponent>(asset, assetName, Engine::TagType::Render3D);
+                    gResources->m_registry.emplace<Engine::StateComponent>(asset, true);
+                    gResources->m_registry.emplace<Engine::TransformComponent>(asset, glm::vec3{ (i % 5), 0.6, (float)std::floor(i/5) }, glm::vec3{ 0,0,0 }, glm::vec3{ 0.05, 0.3, 0.05 });
+                    gResources->m_registry.emplace<Engine::MeshRendererComponent>(asset, "./assets/models/Cube/Cube.obj", assetName);
+                }*/
             }
             
         }

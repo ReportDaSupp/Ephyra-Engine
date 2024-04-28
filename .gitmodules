@@ -33,11 +33,6 @@
 	url = https://github.com/nothings/stb.git
 	branch = master
 	update = rebase
-[submodule "vendor/assimp"]
-	path = vendor/assimp
-	url = https://github.com/IMAT3905/assimp.git
-	branch = master
-	update = rebase
 [submodule "vendor/box2d"]
 	path = vendor/box2d
 	url = https://github.com/IMAT3905/box2d.git

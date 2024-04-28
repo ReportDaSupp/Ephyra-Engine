@@ -381,6 +381,8 @@ namespace Engine
 		shader->useShader(s_data->VAO->getRenderID());
 
 		// Upload Tex Units
+		shader->uploadInt("ImmediateMode", 0);
+
 		shader->uploadIntArray("u_texData", RendererCommon::textureUnits->data(), 32);
 
 		if (!RendererCommon::lightPos.empty())
@@ -405,7 +407,6 @@ namespace Engine
 
 		// Upload Instance Data
 		auto VBO_Models = s_data->VAO->getVertexBuffer().at(1);
-		auto VBO_TexUnit = s_data->VAO->getVertexBuffer().at(2);
 		auto VBO_Tints = s_data->VAO->getVertexBuffer().at(2);
 
 		auto VBO_Albedo = s_data->VAO->getVertexBuffer().at(3);

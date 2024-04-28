@@ -179,8 +179,7 @@ namespace Engine
                             else
                                 break;
                         }
-                        Engine::Loader::ASSIMPLoad(meshRendererComp["FilePath"][0], ID);
-                        registry.emplace<MeshRendererComponent>(entity, gResources->getAsset<Geometry>(ID+"Geometry"), gResources->getAsset<Material>(ID + "Material"), temp);
+                        registry.emplace<MeshRendererComponent>(entity, meshRendererComp["FilePath"][0], ID);
                     }
 
                     // SpriteRendererComponent
