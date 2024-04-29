@@ -15,6 +15,7 @@ namespace Engine
 
 		virtual void uploadInt(const char* name, int value) override;
 		virtual void uploadIntArray(const char* name, int32_t* value, uint32_t count) override;
+		virtual void uploadMat4Array(const char* name, glm::mat4* value, uint32_t count) override;
 		virtual void uploadFloat(const char* name, float value) override;
 		virtual void uploadFloat2(const char* name, const glm::vec2& value) override;
 		virtual void uploadFloat3(const char* name, const glm::vec3& value) override;

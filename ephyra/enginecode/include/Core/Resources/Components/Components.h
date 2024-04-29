@@ -61,9 +61,9 @@ namespace Engine
 			std::shared_ptr<ResourceManager> resources;
 			resources = ResourceManager::getInstance();
 			Engine::Loader::ASSIMPLoad(filepath, ID); 
-			for (int i = 0; i < resources->MappedIDs[filepath].size(); i++)
+			for (int i = 0; i < resources->IDToMeshNames[resources->FPToIDs[filepath][0]].size(); i++)
 			{
-				std::string tempID = resources->MappedIDs[filepath][i];
+				std::string tempID = resources->IDToMeshNames[resources->FPToIDs[filepath][0]][i];
 				Geometry.push_back(resources->getAsset<Engine::Geometry>(tempID + "Geometry"));
 				Material.push_back(resources->getAsset<Engine::Material>(tempID + "Material"));
 			}

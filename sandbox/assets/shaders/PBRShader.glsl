@@ -75,7 +75,7 @@ void main()
         boneMatrices[int(a_boneIndices[2])] * a_boneWeights[2] +
         boneMatrices[int(a_boneIndices[3])] * a_boneWeights[3];
 
-    if (a_boneWeights[0] + a_boneWeights[1] + a_boneWeights[2] + a_boneWeights[3] <= 0)
+    if (boneTransform == glm::mat4(0.f))
     {
         mat4 MVP = u_projection * u_view * model;
 	    worldPos = vec3(model * vec4(a_vertexPosition, 1.0));

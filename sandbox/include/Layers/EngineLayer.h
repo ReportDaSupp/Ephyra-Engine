@@ -33,7 +33,7 @@ void EngineLayer::OnAttach() {
     gResources->gPhysicsSystem.getPhysicsWorld()->setEventListener(&gResources->m_collisionListener);
 
     // Init 3D Renderer
-    Engine::Renderer3D::init(49152, 49152, 16384);
+    Engine::Renderer3D::init(262144, 262144, 262144);
 
     // Init Shader
     std::shared_ptr<Engine::Shader> PBRShader;
@@ -75,31 +75,18 @@ void EngineLayer::OnDetach() {
 void EngineLayer::OnUpdate(float timestep) {
     // Update logic for each frame
 
-    // Update Physics
-    if (gResources->ePhysics)
+        // Update Animation
+    auto& view = gResources->m_registry.view<Engine::TransformComponent, Engine::MeshRendererComponent, Engine::StateComponent, Engine::TagComponent>();
+
+    for (auto& entity : view)
     {
-        gResources->gPhysicsSystem.update(timestep);
-
-        auto& rbView = gResources->m_registry.view<Engine::RigidBodyComponent>();
-        for (auto& e : rbView)
-        {
-            auto& tc = gResources->m_registry.get<Engine::TransformComponent>(e);
-            auto& rbc = gResources->m_registry.get<Engine::RigidBodyComponent>(e);
-
-            auto& p = rbc.m_body->getTransform().getPosition();
-            tc.Translation = glm::vec3(p.x, p.y, p.z);
-            auto& o = rbc.m_body->getTransform().getOrientation();
-            tc.Rotation = glm::quat(o.w, o.x, o.y, o.z);
-            auto T = tc.Translation;
-            glm::mat4 t = glm::translate(glm::mat4(1.0f), T);
-            tc.Euler = glm::eulerAngles(tc.Rotation);
-            auto R = tc.Rotation;
-            glm::mat4 r = glm::mat4_cast(R);
-            auto S = tc.Scale;
-            glm::mat4 s = glm::scale(glm::mat4(1.0f), S);
-            tc.Transform = t * r * s;
-        }
+        auto tag = view.get<Engine::TagComponent>(entity).Tag;
+        auto& trans = view.get<Engine::TransformComponent>(entity).Transform;
+        if (!(sceneMapping.find(tag) == sceneMapping.end()))
+            if (sceneMapping[tag]->HasAnimations() == 1)
+                Engine::Loader::updateBoneTransforms(gResources->currentTimeKey, sceneMapping[tag]->mRootNode, glm::mat4(1.f), tag);
     }
+    
 
         // Update ViewPoint
     gResources->m_view3D = gResources->activeCamera->getViewMatrix();
@@ -167,10 +154,32 @@ void EngineLayer::OnRender(){
    
     Engine::Renderer3D::begin(gResources->sWideUniforms3D);
 
-    auto& view2 = gResources->m_registry.view<Engine::TransformComponent, Engine::MeshRendererComponent, Engine::StateComponent>();
+    auto& view2 = gResources->m_registry.view<Engine::TransformComponent, Engine::MeshRendererComponent, Engine::StateComponent, Engine::TagComponent>();
 
     for (auto& entity : view2)
     {
+        auto& filepath = view2.get<Engine::MeshRendererComponent>(entity).LoaderPath;
+        for (int i = 0; i < gResources->IDToMeshNames[gResources->FPToIDs[filepath][0]].size(); i++)
+        {
+            auto& tag = gResources->FPToIDs[filepath][0];
+
+            if (boneInfoList.find(gResources->IDToMeshNames[tag][i]) != boneInfoList.end())              //sceneMapping[tag]->mMeshes[0]->mName.data) != boneInfoList.end())
+            {
+                auto bone = boneInfoList[gResources->IDToMeshNames[tag][i]]; // sceneMapping[tag]->mMeshes[0]->mName.data];
+                for (int i = 0; i < bone.size() && i < 100; i++)
+                {
+                    boneManager.getBoneMatrices()[i] = bone[i].finalTransformation;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    boneManager.getBoneMatrices()[i] = glm::mat4(0.0f);
+                }
+            }
+        }
+
         auto& mesh = view2.get<Engine::MeshRendererComponent>(entity);
         auto& trans = view2.get<Engine::TransformComponent>(entity);
         auto& vis = view2.get<Engine::StateComponent>(entity).State;

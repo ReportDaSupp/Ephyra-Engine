@@ -1,32 +1,21 @@
 #pragma once
 
-#include "Core/Resources/Management/ResourceManager.h"
-#include "Core/Systems/Utility/Log.h"
-
-#include <glm/glm.hpp>
-#include <map>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
+#include "Core/Resources/Utility/AssimpHelperFunctions.h"
+#include <glm/gtx/integer.hpp>
 
 namespace Engine {
 	namespace Loader
 	{
-		struct BoneInfo {
-			glm::mat4 boneOffset;
-			glm::mat4 finalTransformation;
-		};
 
 		struct VertexBoneData {
-			unsigned int IDs[4] = { 0 };
-			float weights[4] = { 0.0f };
+			glm::vec4 IDs;
+			glm::vec4 Weights;
 
-			void addBoneData(unsigned int boneID, float weight) {
-				for (unsigned int i = 0; i < 4; ++i) {
-					if (weights[i] == 0.0) {
-						IDs[i] = boneID;
-						weights[i] = weight;
+			void addBoneData(int BoneID, float Weight) {
+				for (int i = 0; i < 4; i++) {
+					if (Weights[i] == 0.0) {
+						IDs[i] = BoneID;
+						Weights[i] = Weight;
 						return;
 					}
 				}
@@ -38,9 +27,6 @@ namespace Engine {
 			std::vector<Renderer3DVertex>vertices;
 			std::vector<uint32_t> indices;
 			std::vector<VertexBoneData> boneData;
-			std::map<std::string, unsigned int> boneMapping;
-			std::vector<BoneInfo> bones;
-			unsigned int numBones = 0;
 			std::shared_ptr<Texture> diffuseTexture = nullptr;
 			std::shared_ptr<Texture> specularTexture = nullptr;
 			std::shared_ptr<Texture> ambientTexture = nullptr;
@@ -49,109 +35,63 @@ namespace Engine {
 
 		};
 
-		struct Bone {
-			std::string name;
-			int id;
-			glm::mat4 offsetMatrix;
-			glm::mat4 finalTransformation;
-
-			Bone() : id(-1), offsetMatrix(glm::mat4(1.0f)), finalTransformation(glm::mat4(1.0f)) {}
-		};
-
-		struct Keyframe {
-			float timeStamp;
-			glm::vec3 position;
-			glm::quat rotation;
-			glm::vec3 scale;
-
-			Keyframe() : timeStamp(0.0f), position(glm::vec3(0.0f)), rotation(glm::quat()), scale(glm::vec3(1.0f)) {}
-		};
-
-		struct Animation {
-			float duration;
-			float ticksPerSecond;
-			std::map<std::string, std::vector<Keyframe>> boneKeyframes;
-
-			Animation() : duration(0.0f), ticksPerSecond(0.0f) {}
-		};
-
-		struct Skeleton {
-			std::vector<Bone> bones;
-			std::map<std::string, unsigned int> boneMapping;
-			std::vector<Animation> animations;
-
-			Skeleton() {}
-		};
-
 		static std::shared_ptr<ResourceManager> gResources = nullptr;
 		static std::shared_ptr<Shader> s_shader = nullptr;
-		static int meshCount = 0;
+		
+		std::map<std::string, unsigned int> boneMapping;
+		unsigned int numBones = 0;
 
-		glm::mat4 AssimpToGLMMatrix(const aiMatrix4x4& apMat) {
-			glm::mat4 glmMat;
+		static void updateBoneTransforms(float timeInSeconds, const aiNode* pNode, const glm::mat4& parentTransform, std::string ID) {
+			std::string nodeName(pNode->mName.data);
+			glm::mat4 nodeTransformation = AssimpToGLMMatrix(pNode->mTransformation);
 
-			glmMat[0][0] = apMat.a1; glmMat[1][0] = apMat.a2;
-			glmMat[2][0] = apMat.a3; glmMat[3][0] = apMat.a4;
-			glmMat[0][1] = apMat.b1; glmMat[1][1] = apMat.b2;
-			glmMat[2][1] = apMat.b3; glmMat[3][1] = apMat.b4;
-			glmMat[0][2] = apMat.c1; glmMat[1][2] = apMat.c2;
-			glmMat[2][2] = apMat.c3; glmMat[3][2] = apMat.c4;
-			glmMat[0][3] = apMat.d1; glmMat[1][3] = apMat.d2;
-			glmMat[2][3] = apMat.d3; glmMat[3][3] = apMat.d4;
+			const aiAnimation* animation = sceneMapping[ID]->mAnimations[0];  // Assuming using the first animation
+			const aiNodeAnim* nodeAnim = findNodeAnim(animation, nodeName);
 
-			return glmMat;
-		}
+			if (nodeAnim) {
+				// Interpolate scaling, rotation, and translation
+				glm::vec3 scaling = interpolateScaling(glm::mod(timeInSeconds, (float)(sceneMapping[ID]->mAnimations[0]->mDuration / sceneMapping[ID]->mAnimations[0]->mTicksPerSecond)), nodeAnim);
+				glm::mat4 scalingM = glm::scale(glm::mat4(1.0f), scaling);
 
-		glm::vec3 AssimpToGLMVec(const aiVector3D& ai_vec) {
-			return glm::vec3(ai_vec.x, ai_vec.y, ai_vec.z);
-		}
+				glm::quat rotationQ = interpolateRotation(glm::mod(timeInSeconds, (float)(sceneMapping[ID]->mAnimations[0]->mDuration / sceneMapping[ID]->mAnimations[0]->mTicksPerSecond)), nodeAnim);
+				glm::mat4 rotationM = glm::mat4(rotationQ);
 
-		static void processAnimations(const aiScene* scene, Skeleton& skeleton) {
-			for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
-				aiAnimation* ai_anim = scene->mAnimations[i];
-				Animation anim;
-				anim.duration = ai_anim->mDuration;
-				anim.ticksPerSecond = ai_anim->mTicksPerSecond ? ai_anim->mTicksPerSecond : 25.0f;
+				glm::vec3 translation = interpolatePosition(glm::mod(timeInSeconds, (float)(sceneMapping[ID]->mAnimations[0]->mDuration / sceneMapping[ID]->mAnimations[0]->mTicksPerSecond)), nodeAnim);
+				glm::mat4 translationM = glm::translate(glm::mat4(1.0f), translation);
 
-				for (unsigned int j = 0; j < ai_anim->mNumChannels; j++) {
-					aiNodeAnim* channel = ai_anim->mChannels[j];
-					std::vector<Keyframe> keyframes;
-
-					// Process all keyframes for this channel
-					for (unsigned int k = 0; k < channel->mNumPositionKeys; k++) {
-						Keyframe keyframe;
-						keyframe.timeStamp = (float)channel->mPositionKeys[k].mTime;
-						keyframe.position = AssimpToGLMVec(channel->mPositionKeys[k].mValue);
-
-						if (k < channel->mNumRotationKeys) {
-							keyframe.rotation = glm::quat(
-								channel->mRotationKeys[k].mValue.w,
-								channel->mRotationKeys[k].mValue.x,
-								channel->mRotationKeys[k].mValue.y,
-								channel->mRotationKeys[k].mValue.z
-							);
-						}
-
-						if (k < channel->mNumScalingKeys) {
-							keyframe.scale = AssimpToGLMVec(channel->mScalingKeys[k].mValue);
-						}
-
-						keyframes.push_back(keyframe);
-					}
-
-					anim.boneKeyframes[channel->mNodeName.C_Str()] = keyframes;
-				}
-
-				skeleton.animations.push_back(anim);
+				// Combine the transformations
+				nodeTransformation *= scalingM;
+				nodeTransformation *= rotationM;
+				nodeTransformation *= translationM;
 			}
+
+			glm::mat4 globalTransformation =  parentTransform * nodeTransformation;
+
+			if (!(boneMapping.find(nodeName) == boneMapping.end())) {
+				unsigned int boneIndex = boneMapping[nodeName];
+				glm::mat4 bOMat = boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].boneOffset;
+				glm::mat4 tMat = AssimpToGLMMatrix(sceneMapping[ID]->mRootNode->mTransformation);
+				glm::mat4 iTMat = glm::inverse(tMat);
+
+				boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation = glm::mat4(1.0f);
+				//boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation *= bOMat;
+				//boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation *= globalTransformation;
+				//boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation *= iTMat;
+				
+			}
+
+			for (unsigned int i = 0; i < pNode->mNumChildren; i++) {
+				updateBoneTransforms(timeInSeconds, pNode->mChildren[i], globalTransformation, ID);
+			}
+
 		}
 
 		static void ASSIMPProcessMesh(aiMesh* mesh, const aiScene* scene, std::string ID, std::string filePath)
 		{
-			gResources->MappedIDs[filePath].push_back(ID);
+			gResources->IDToMeshNames[ID].push_back(mesh->mName.C_Str());
 			
 			TempMesh tmpMesh;
-
+			tmpMesh.boneData.resize(mesh->mNumVertices);
 			tmpMesh.vertices.reserve(mesh->mNumVertices);
 
 			bool hasPositions = mesh->HasPositions();
@@ -160,6 +100,44 @@ namespace Engine {
 			bool hasBones = mesh->HasBones();
 			uint32_t numColourChannels = mesh->GetNumColorChannels();
 			uint32_t numUVChannels = mesh->GetNumUVChannels();
+
+			for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+				unsigned int boneIndex = 0;
+				std::string boneName = mesh->mBones[i]->mName.C_Str();
+
+				if (boneMapping.find(boneName) == boneMapping.end()) {
+					// Allocate an index for a new bone
+					boneIndex = numBones;
+					numBones++;
+					BoneInfo bi;
+					bi.boneOffset = AssimpToGLMMatrix(mesh->mBones[i]->mOffsetMatrix);
+					boneInfoList[mesh->mName.C_Str()].push_back(bi);
+					boneMapping[boneName] = boneIndex;
+				}
+				else {
+					boneIndex = boneMapping[boneName];
+				}
+
+				for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+					unsigned int VertexID = mesh->mBones[i]->mWeights[j].mVertexId;
+					float Weight = mesh->mBones[i]->mWeights[j].mWeight;
+					tmpMesh.boneData[VertexID].addBoneData(boneIndex, Weight);
+				}
+				
+			}
+
+			for (unsigned int x = 0; x < tmpMesh.boneData.size(); x++) {
+					float sum = 0.0f;
+					float totalWeight = tmpMesh.boneData[x].Weights.x + tmpMesh.boneData[x].Weights.y + tmpMesh.boneData[x].Weights.z + tmpMesh.boneData[x].Weights.w;
+
+					if (totalWeight > 0)
+					{
+						tmpMesh.boneData[x].Weights.x /= totalWeight;
+						tmpMesh.boneData[x].Weights.y /= totalWeight;
+						tmpMesh.boneData[x].Weights.z /= totalWeight;
+						tmpMesh.boneData[x].Weights.w /= totalWeight;
+					}
+				}
 
 			for (uint32_t i = 0; i < mesh->mNumVertices; i++)
 			{
@@ -170,6 +148,11 @@ namespace Engine {
 
 				if (hasPositions) position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 				if (hasNormals) normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+				if (hasBones)
+				{
+					boneIndices = tmpMesh.boneData[i].IDs;
+					boneWeights = tmpMesh.boneData[i].Weights;
+				}
 
 				for (uint32_t j = 0; j < numColourChannels; j++)
 				{
@@ -240,7 +223,7 @@ namespace Engine {
 						tag.resize(tag.rfind('.'));
 						std::shared_ptr<Texture> tmp;
 						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
-						tmpMesh.diffuseTexture = gResources->addAsset(ID + tag, SceneAsset::Type::Texture, tmp);
+						tmpMesh.diffuseTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
 					}
 
 					if (type == aiTextureType_SPECULAR)
@@ -254,7 +237,7 @@ namespace Engine {
 						tag.resize(tag.rfind('.'));
 						std::shared_ptr<Texture> tmp;
 						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
-						tmpMesh.specularTexture = gResources->addAsset(ID + tag, SceneAsset::Type::Texture, tmp);
+						tmpMesh.specularTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
 					}
 
 					if (type == aiTextureType_AMBIENT)
@@ -268,7 +251,7 @@ namespace Engine {
 						tag.resize(tag.rfind('.'));
 						std::shared_ptr<Texture> tmp;
 						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
-						tmpMesh.ambientTexture = gResources->addAsset(ID + tag, SceneAsset::Type::Texture, tmp);
+						tmpMesh.ambientTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
 
 					}
 
@@ -283,7 +266,7 @@ namespace Engine {
 						tag.resize(tag.rfind('.'));
 						std::shared_ptr<Texture> tmp;
 						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
-						tmpMesh.normalTexture = gResources->addAsset(ID + tag, SceneAsset::Type::Texture, tmp);
+						tmpMesh.normalTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
 					}
 
 				}
@@ -307,7 +290,8 @@ namespace Engine {
 			Engine::Geometry tmpGeo;
 
 			Renderer3D::addGeometry(tmpMesh.vertices, tmpMesh.indices, tmpGeo);
-			gResources->addAsset(ID + "Geometry", Engine::SceneAsset::Type::Geometry, std::make_shared<Geometry>(tmpGeo));
+			std::string name = mesh->mName.C_Str();
+			gResources->addAsset(name + ("Geometry"), Engine::SceneAsset::Type::Geometry, std::make_shared<Geometry>(tmpGeo));
 
 			std::vector<std::shared_ptr<Texture>> textures;
 			textures.resize(5);
@@ -332,7 +316,7 @@ namespace Engine {
 			{
 				textures[4] = tmpMesh.normalTexture;
 			}
-			gResources->addAsset(ID + "Material", Engine::SceneAsset::Type::Material, std::make_shared<Material>(s_shader, textures, false));
+			gResources->addAsset(name + "Material", Engine::SceneAsset::Type::Material, std::make_shared<Material>(s_shader, textures, false));
 
 		}
 
@@ -347,7 +331,7 @@ namespace Engine {
 			for (uint32_t i = 0; i < node->mNumMeshes; i++)
 			{
 				aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-				ASSIMPProcessMesh(mesh, scene, mesh->mName.C_Str(), filepath);
+				ASSIMPProcessMesh(mesh, scene, ID, filepath);
 			}
 
 			//  Process child nodes
@@ -360,16 +344,17 @@ namespace Engine {
 		static void ASSIMPLoad(const std::string& filepath, std::string id, std::shared_ptr<Shader> shader = nullptr)
 		{
 			gResources = Engine::ResourceManager::getInstance();
-			meshCount = 0;
 
-			if (!(gResources->MappedIDs.find(filepath) == gResources->MappedIDs.end()))
-				for (int i = 0; i < gResources->MappedIDs[filepath].size(); i++)
+			if (gResources->FPToIDs.find(filepath) != gResources->FPToIDs.end())
+				for (int i = 0; i < gResources->IDToMeshNames[gResources->FPToIDs[filepath][0]].size(); i++)
 				{
-					auto& mat = gResources->getAsset<Material>(gResources->MappedIDs[filepath][i] + "Material");
-					if (!mat->isFlagSet(1))
+					auto& mat = gResources->getAsset<Material>(gResources->IDToMeshNames[gResources->FPToIDs[filepath][0]][i] + "Material");
+					if (!mat->isFlagSet(mat->flag_batched))
 						mat->setFlag(1);
 					return;
 				}
+			else
+				gResources->FPToIDs[filepath].push_back(id);
 
 			if (shader != nullptr)
 			{
@@ -379,17 +364,26 @@ namespace Engine {
 			{
 				s_shader = gResources->getAsset<Engine::Shader>("PBR");
 			}
-
-			Assimp::Importer importer;
-			const aiScene* scene = importer.Assimp::Importer::ReadFile(filepath, aiProcess_FlipUVs | aiProcess_Triangulate);
-
-			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-			{
-				Log::error("Cannot load: {0}, ASSIMP Error {1}", filepath, importer.GetErrorString());
-				return;
+			
+			if (sceneMapping.find(id) == sceneMapping.end()) {
+				const aiScene* temp = importer[gResources->fileCount].ReadFile(filepath,
+					aiProcess_Triangulate |
+					aiProcess_FlipUVs |
+					aiProcess_GenSmoothNormals |
+					aiProcess_LimitBoneWeights |
+					aiProcess_JoinIdenticalVertices);
+				if (!temp || temp->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !temp->mRootNode)
+				{
+					Log::error("Cannot load: {0}, ASSIMP Error {1}", filepath, importer[gResources->fileCount].GetErrorString());
+					return;
+				}
+				else {
+					sceneMapping[id] = importer[gResources->fileCount].GetScene();
+					gResources->fileCount++;
+				}
 			}
 
-			ASSIMPProcessNode(scene->mRootNode, scene, id, filepath);
+			ASSIMPProcessNode(sceneMapping[id]->mRootNode, sceneMapping[id], id, filepath);
 			
 
 		}

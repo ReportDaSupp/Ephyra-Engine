@@ -50,7 +50,6 @@ private:
     int winPosX;
     int winPosY;
 
-    float currentTime = 0.0f;
     float timelineStart = 0.0f;
     float timelineEnd = 250.0f;
     bool  isPlaying = false;
@@ -119,11 +118,11 @@ void ImGuiLayer::OnUpdate(float timestep) {
 
     if (isPlaying)
     {
-        currentTime += timestep;
+        gResources->currentTimeKey += timestep;
     }
-    if (currentTime > maxTime)
+    if (gResources->currentTimeKey > maxTime)
     {
-        currentTime = 0;
+        gResources->currentTimeKey = 0;
         isPlaying = false;
     }
 
@@ -378,7 +377,7 @@ void ImGuiLayer::OnRender() {
             ImGui::SameLine();
 
             if (ImGui::Button("Reset", buttonSize)) {
-                currentTime = 0.0f;
+                gResources->currentTimeKey = 0.0f;
             }
             ImGui::SameLine();
 
@@ -389,7 +388,7 @@ void ImGuiLayer::OnRender() {
             float windowVisible = ImGui::GetContentRegionAvail().x;
             float timelineWidth = windowVisible - buttonSize.x * 3 - ImGui::GetStyle().ItemSpacing.x * 4;
 
-            ImGui::Text("Current Time: %.2f", currentTime);
+            ImGui::Text("Current Time: %.2f", gResources->currentTimeKey);
             ImGui::SameLine();
             ImGui::Text("Maximum Time: %.2f", maxTime);
             
@@ -411,7 +410,7 @@ void ImGuiLayer::OnRender() {
                     draw_list->AddLine(ImVec2(x, timelineStartPos.y), ImVec2(x, timelineStartPos.y + timelineSize.y), IM_COL32(60, 60, 60, 255));
             }
 
-            float t = (currentTime - timelineStart) / (timelineEnd - timelineStart);
+            float t = (gResources->currentTimeKey - timelineStart) / (timelineEnd - timelineStart);
             float x = timelineStartPos.x + t * timelineSize.x;
             draw_list->AddLine(ImVec2(x, timelineStartPos.y), ImVec2(x, timelineStartPos.y + timelineSize.y), IM_COL32(255, 255, 0, 255), 2.0f);
 
@@ -420,14 +419,14 @@ void ImGuiLayer::OnRender() {
                 if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
                     ImVec2 mousePos = ImGui::GetMousePos();
                     float newT = (mousePos.x - timelineStartPos.x) / timelineSize.x;
-                    currentTime = timelineStart + newT * (timelineEnd - timelineStart);
+                    gResources->currentTimeKey = timelineStart + newT * (timelineEnd - timelineStart);
                 }
             }
 
             if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
                 ImVec2 mousePos = ImGui::GetMousePos();
                 float newT = (mousePos.x - timelineStartPos.x) / timelineSize.x;
-                currentTime = timelineStart + newT * (timelineEnd - timelineStart);
+                gResources->currentTimeKey = timelineStart + newT * (timelineEnd - timelineStart);
             }
 
             ImGui::End();

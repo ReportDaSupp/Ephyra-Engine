@@ -109,7 +109,9 @@ namespace Engine
         glm::mat4 m_view2D;
         glm::mat4 m_projection2D;
 
-        std::unordered_map<std::string, std::vector<std::string>> MappedIDs;
+        std::unordered_map<std::string, std::vector<std::string>> FPToIDs;
+        std::unordered_map<std::string, std::vector<std::string>> IDToMeshNames;
+        uint32_t fileCount = 0;
 
         // GUI Layer
         bool isGuiActive = true;
@@ -129,6 +131,8 @@ namespace Engine
         bool eFileDialog = false;
 
         bool eIntroMessage = true;
+
+        float currentTimeKey = 0.f;
 
         std::shared_ptr<Texture> imGuiWelcomeImage;
         std::shared_ptr<Texture> texViewerImage;

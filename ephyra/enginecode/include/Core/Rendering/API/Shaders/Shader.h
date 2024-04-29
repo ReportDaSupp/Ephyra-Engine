@@ -21,6 +21,7 @@ namespace Engine
 
 		virtual void uploadInt(const char* name, int value) = 0;
 		virtual void uploadIntArray(const char* name, int32_t* value, uint32_t count) = 0;
+		virtual void uploadMat4Array(const char* name, glm::mat4* value, uint32_t count) = 0;
 		virtual void uploadFloat(const char* name, float value) = 0;
 		virtual void uploadFloat2(const char* name, const glm::vec2& value) = 0;
 		virtual void uploadFloat3(const char* name, const glm::vec3& value) = 0;

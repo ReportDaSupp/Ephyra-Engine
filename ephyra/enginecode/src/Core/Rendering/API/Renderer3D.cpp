@@ -4,6 +4,7 @@
 
 #include "Core/Initialization/GlobalProperties.h"
 #include "Core/Rendering/Renderer/Renderer3D.h"
+#include "Core/Resources/Utility/GlobalAssimpData.h"
 
 #include <Glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,7 +21,7 @@ namespace Engine
 
 	void Renderer3D::init(uint32_t vertexCapacity, uint32_t indexCapacity, uint32_t batchSize)
 	{
-		
+
 		if (!RendererCommon::defaultTexture)
 		{
 			unsigned char whitePx[4] = { 255, 255, 255, 255 };
@@ -174,6 +175,12 @@ namespace Engine
 			{
 				RendererCommon::m_textUM->getUnit(textures[i]->getID(), texUnit[i]);
 				textures[i]->load(texUnit[i]);
+			}
+
+			for (int i = 0; i < 100; i++)
+			{
+				std::string name = "boneMatrices[" + std::to_string(i) + "]";
+				shader->uploadMat4(name.c_str(), boneManager.getBoneMatrices()[i]);
 			}
 
 			shader->uploadIntArray("u_texData", RendererCommon::textureUnits->data(), 32);

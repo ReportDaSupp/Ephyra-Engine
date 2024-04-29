@@ -173,6 +173,12 @@ namespace Engine
 		glUniform1iv(location, count, value);
 	}
 
+	void OpenGLShader::uploadMat4Array(const char* name, glm::mat4* value, uint32_t count)
+	{
+		uint32_t location = glGetUniformLocation(m_OpenGL_ID, name);
+		glUniformMatrix4fv(location, count, GL_FALSE, (GLfloat*)value);
+	}
+
 	void OpenGLShader::uploadFloat3Array(const char* name, glm::vec3* value, uint32_t count)
 	{
 		uint32_t location = glGetUniformLocation(m_OpenGL_ID, name);

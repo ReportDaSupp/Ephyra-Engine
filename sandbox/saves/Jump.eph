@@ -1,0 +1,176 @@
+{
+    "entities": [
+        {
+            "MeshRendererComponent": {
+                "FilePath": [
+                    "./assets/models/Jump/Jumping Down.fbx"
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Jump"
+                ],
+                "Type": [
+                    2
+                ]
+            },
+            "TransformComponent": {
+                "Euler": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "Translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "id": 4
+        },
+        {
+            "EmmissiveComponent": {
+                "Color": [
+                    1.0,
+                    1.0,
+                    30.100000381469727
+                ],
+                "Position": [
+                    6.599999904632568,
+                    3.25,
+                    0.0
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Light3"
+                ],
+                "Type": [
+                    3
+                ]
+            },
+            "id": 3
+        },
+        {
+            "EmmissiveComponent": {
+                "Color": [
+                    1.0,
+                    13.949999809265137,
+                    0.699999988079071
+                ],
+                "Position": [
+                    -6.199999809265137,
+                    3.0,
+                    0.0
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Light2"
+                ],
+                "Type": [
+                    3
+                ]
+            },
+            "id": 2
+        },
+        {
+            "EmmissiveComponent": {
+                "Color": [
+                    16.049999237060547,
+                    0.20000000298023224,
+                    10.0
+                ],
+                "Position": [
+                    0.0,
+                    2.0,
+                    0.0
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Light1"
+                ],
+                "Type": [
+                    3
+                ]
+            },
+            "id": 1
+        },
+        {
+            "BoxColliderComponent": {
+                "HalfExtents": [
+                    88.0,
+                    1.0,
+                    68.0
+                ]
+            },
+            "MeshRendererComponent": {
+                "FilePath": [
+                    "./assets/models/Floor/Floor.obj"
+                ]
+            },
+            "RigidBodyComponent": {
+                "BodyType": [
+                    0
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Floor"
+                ],
+                "Type": [
+                    2
+                ]
+            },
+            "TransformComponent": {
+                "Euler": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "Scale": [
+                    176.0,
+                    1.0,
+                    136.0
+                ],
+                "Translation": [
+                    0.0,
+                    -0.5,
+                    0.0
+                ]
+            },
+            "id": 0
+        }
+    ]
+}
