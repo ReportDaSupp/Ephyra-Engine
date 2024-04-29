@@ -14,18 +14,12 @@ namespace Engine {
 	namespace Loader
 	{
 		glm::mat4 AssimpToGLMMatrix(const aiMatrix4x4& apMat) {
-			glm::mat4 glmMat;
-
-			glmMat[0][0] = apMat.a1; glmMat[1][0] = apMat.a2;
-			glmMat[2][0] = apMat.a3; glmMat[3][0] = apMat.a4;
-			glmMat[0][1] = apMat.b1; glmMat[1][1] = apMat.b2;
-			glmMat[2][1] = apMat.b3; glmMat[3][1] = apMat.b4;
-			glmMat[0][2] = apMat.c1; glmMat[1][2] = apMat.c2;
-			glmMat[2][2] = apMat.c3; glmMat[3][2] = apMat.c4;
-			glmMat[0][3] = apMat.d1; glmMat[1][3] = apMat.d2;
-			glmMat[2][3] = apMat.d3; glmMat[3][3] = apMat.d4;
-
-			return glmMat;
+			return glm::mat4(
+				apMat.a1, apMat.b1, apMat.c1, apMat.d1,
+				apMat.a2, apMat.b2, apMat.c2, apMat.d2,
+				apMat.a3, apMat.b3, apMat.c3, apMat.d3,
+				apMat.a4, apMat.b4, apMat.c4, apMat.d4
+			);
 		}
 
 		glm::vec3 AssimpToGLMVec(const aiVector3D& ai_vec) {

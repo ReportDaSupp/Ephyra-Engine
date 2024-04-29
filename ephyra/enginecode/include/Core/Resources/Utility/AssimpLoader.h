@@ -73,10 +73,10 @@ namespace Engine {
 				glm::mat4 tMat = AssimpToGLMMatrix(sceneMapping[ID]->mRootNode->mTransformation);
 				glm::mat4 iTMat = glm::inverse(tMat);
 
-				boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation = glm::mat4(1.0f);
-				//boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation *= bOMat;
-				//boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation *= globalTransformation;
-				//boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation *= iTMat;
+				//boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation = glm::mat4(1.0f);
+				boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation = bOMat;
+				boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation *= globalTransformation;
+				boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation *= iTMat;
 				
 			}
 
