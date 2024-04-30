@@ -80,7 +80,6 @@ namespace Engine {
 
 			unsigned int index = findScalingIndex(time, nodeAnim);
 			unsigned int nextIndex = index + 1;
-			assert(nextIndex < nodeAnim->mNumScalingKeys);
 			float deltaTime = nodeAnim->mScalingKeys[nextIndex].mTime - nodeAnim->mScalingKeys[index].mTime;
 			float factor = (time - nodeAnim->mScalingKeys[index].mTime) / deltaTime;
 			const aiVector3D& start = nodeAnim->mScalingKeys[index].mValue;
@@ -97,7 +96,6 @@ namespace Engine {
 
 			unsigned int index = findRotationIndex(time, nodeAnim);
 			unsigned int nextIndex = index + 1;
-			assert(nextIndex < nodeAnim->mNumRotationKeys);
 			float deltaTime = nodeAnim->mRotationKeys[nextIndex].mTime - nodeAnim->mRotationKeys[index].mTime;
 			float factor = (time - nodeAnim->mRotationKeys[index].mTime) / deltaTime;
 			const aiQuaternion& start = nodeAnim->mRotationKeys[index].mValue;
@@ -115,7 +113,6 @@ namespace Engine {
 
 			unsigned int index = findPositionIndex(time, nodeAnim);
 			unsigned int nextIndex = index + 1;
-			assert(nextIndex < nodeAnim->mNumPositionKeys);
 			float deltaTime = nodeAnim->mPositionKeys[nextIndex].mTime - nodeAnim->mPositionKeys[index].mTime;
 			float factor = (time - nodeAnim->mPositionKeys[index].mTime) / deltaTime;
 			const aiVector3D& start = nodeAnim->mPositionKeys[index].mValue;

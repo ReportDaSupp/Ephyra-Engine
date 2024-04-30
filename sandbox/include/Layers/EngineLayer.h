@@ -168,14 +168,16 @@ void EngineLayer::OnRender(){
                 auto bone = boneInfoList[gResources->IDToMeshNames[tag][i]]; // sceneMapping[tag]->mMeshes[0]->mName.data];
                 for (int i = 0; i < bone.size() && i < 100; i++)
                 {
-                    boneManager.getBoneMatrices()[i] = bone[i].finalTransformation;
+                    auto& boneMatrix = boneManager.getBoneMatrices()[i];
+                    boneMatrix = bone[i].finalTransformation;
                 }
             }
             else
             {
                 for (int i = 0; i < 100; i++)
                 {
-                    boneManager.getBoneMatrices()[i] = glm::mat4(0.0f);
+                    auto& boneMatrix = boneManager.getBoneMatrices()[i];
+                    boneMatrix = glm::mat4(0.0f);
                 }
             }
         }

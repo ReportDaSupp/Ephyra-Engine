@@ -49,20 +49,32 @@ namespace Engine {
 			const aiNodeAnim* nodeAnim = findNodeAnim(animation, nodeName);
 
 			if (nodeAnim) {
+
+				/*auto& p = rbc.m_body->getTransform().getPosition();
+				tc.Translation = glm::vec3(p.x, p.y, p.z);
+				auto& o = rbc.m_body->getTransform().getOrientation();
+				tc.Rotation = glm::quat(o.w, o.x, o.y, o.z);
+				auto T = tc.Translation;
+				glm::mat4 t = glm::translate(glm::mat4(1.0f), T);
+				tc.Euler = glm::eulerAngles(tc.Rotation);
+				auto R = tc.Rotation;
+				glm::mat4 r = glm::mat4_cast(R);
+				auto S = tc.Scale;
+				glm::mat4 s = glm::scale(glm::mat4(1.0f), S);
+				tc.Transform = t * r * s;*/
+
 				// Interpolate scaling, rotation, and translation
-				glm::vec3 scaling = interpolateScaling(glm::mod(timeInSeconds, (float)(sceneMapping[ID]->mAnimations[0]->mDuration / sceneMapping[ID]->mAnimations[0]->mTicksPerSecond)), nodeAnim);
-				glm::mat4 scalingM = glm::scale(glm::mat4(1.0f), scaling);
+				glm::vec3 scalingVec = interpolateScaling(glm::mod(timeInSeconds * (float)sceneMapping[ID]->mAnimations[0]->mTicksPerSecond, (float)sceneMapping[ID]->mAnimations[0]->mDuration), nodeAnim);
+				glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0f), scalingVec);
 
-				glm::quat rotationQ = interpolateRotation(glm::mod(timeInSeconds, (float)(sceneMapping[ID]->mAnimations[0]->mDuration / sceneMapping[ID]->mAnimations[0]->mTicksPerSecond)), nodeAnim);
-				glm::mat4 rotationM = glm::mat4(rotationQ);
+				glm::quat rotationQuat = interpolateRotation(glm::mod((timeInSeconds * (float)sceneMapping[ID]->mAnimations[0]->mTicksPerSecond), (float)sceneMapping[ID]->mAnimations[0]->mDuration), nodeAnim);
+				glm::mat4 rotationMatrix = glm::mat4_cast(rotationQuat);
 
-				glm::vec3 translation = interpolatePosition(glm::mod(timeInSeconds, (float)(sceneMapping[ID]->mAnimations[0]->mDuration / sceneMapping[ID]->mAnimations[0]->mTicksPerSecond)), nodeAnim);
-				glm::mat4 translationM = glm::translate(glm::mat4(1.0f), translation);
+				glm::vec3 translationVec = interpolatePosition(glm::mod(timeInSeconds * (float)sceneMapping[ID]->mAnimations[0]->mTicksPerSecond, (float)sceneMapping[ID]->mAnimations[0]->mDuration), nodeAnim);
+				glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), translationVec);
 
 				// Combine the transformations
-				nodeTransformation *= scalingM;
-				nodeTransformation *= rotationM;
-				nodeTransformation *= translationM;
+				nodeTransformation *= translationMatrix * rotationMatrix * scalingMatrix;
 			}
 
 			glm::mat4 globalTransformation =  parentTransform * nodeTransformation;
@@ -70,13 +82,10 @@ namespace Engine {
 			if (!(boneMapping.find(nodeName) == boneMapping.end())) {
 				unsigned int boneIndex = boneMapping[nodeName];
 				glm::mat4 bOMat = boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].boneOffset;
-				glm::mat4 tMat = AssimpToGLMMatrix(sceneMapping[ID]->mRootNode->mTransformation);
-				glm::mat4 iTMat = glm::inverse(tMat);
+				glm::mat4 globalInverseMatrix = glm::inverse(AssimpToGLMMatrix(sceneMapping[ID]->mRootNode->mTransformation));
 
 				//boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation = glm::mat4(1.0f);
-				boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation = bOMat;
-				boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation *= globalTransformation;
-				boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation *= iTMat;
+				boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].finalTransformation = globalInverseMatrix * globalTransformation * boneInfoList[sceneMapping[ID]->mMeshes[0]->mName.data][boneIndex].boneOffset;
 				
 			}
 
@@ -226,7 +235,7 @@ namespace Engine {
 						tmpMesh.diffuseTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
 					}
 
-					if (type == aiTextureType_SPECULAR)
+					if (type == aiTextureType_SPECULAR || type == aiTextureType_DIFFUSE_ROUGHNESS)
 					{
 						std::string tempFilepath = filePath;
 						tempFilepath.resize(filePath.rfind('/') + 1);
@@ -240,7 +249,7 @@ namespace Engine {
 						tmpMesh.specularTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
 					}
 
-					if (type == aiTextureType_AMBIENT)
+					if (type == aiTextureType_AMBIENT_OCCLUSION)
 					{
 						std::string tempFilepath = filePath;
 						tempFilepath.resize(filePath.rfind('/') + 1);

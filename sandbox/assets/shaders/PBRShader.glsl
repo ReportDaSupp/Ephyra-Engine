@@ -69,11 +69,10 @@ void main()
         tints = a_tint;
     }
 
-    mat4 boneTransform = 
-        boneMatrices[int(a_boneIndices[0])] * a_boneWeights[0] +
-        boneMatrices[int(a_boneIndices[1])] * a_boneWeights[1] +
-        boneMatrices[int(a_boneIndices[2])] * a_boneWeights[2] +
-        boneMatrices[int(a_boneIndices[3])] * a_boneWeights[3];
+    mat4 boneTransform = boneMatrices[int(a_boneIndices[0])] * a_boneWeights[0];
+    boneTransform += boneMatrices[int(a_boneIndices[1])] * a_boneWeights[1];
+    boneTransform += boneMatrices[int(a_boneIndices[2])] * a_boneWeights[2];
+    boneTransform += boneMatrices[int(a_boneIndices[3])] * a_boneWeights[3];
 
     if (boneTransform == glm::mat4(0.f))
     {
