@@ -30,6 +30,14 @@ namespace Engine
 			RendererCommon::defaultSubTexture = SubTexture(RendererCommon::defaultTexture, { 0.f,0.f }, { 1.f, 1.f });
 		}
 
+		if (!RendererCommon::defaultNormalTexture)
+		{
+			unsigned char bluePx[4] = { 0, 0, 255};
+			RendererCommon::defaultNormalTexture.reset(Texture::create(1, 1, 4, bluePx));
+
+			
+		}
+
 		if (!RendererCommon::m_textUM)
 		{
 			RendererCommon::m_textUM.reset(new TextureUnitManager(32));

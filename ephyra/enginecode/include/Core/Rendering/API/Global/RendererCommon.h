@@ -25,6 +25,7 @@ namespace Engine
 		static void actionCommand(std::shared_ptr<RenderCommand>& command) { command->m_action(); }
 		inline static std::shared_ptr<TextureUnitManager> m_textUM;
 		inline static std::shared_ptr<Texture> defaultTexture;
+		inline static std::shared_ptr<Texture> defaultNormalTexture;
 		inline static SubTexture defaultSubTexture;
 		inline static std::shared_ptr<glm::vec4> defaultTint;
 		inline static std::shared_ptr <std::array<int32_t, 32>> textureUnits;

@@ -26,12 +26,8 @@ public:
     bool OnMouseMovedEvent(Engine::MouseMovedEvent& e) override;
 };
 
-void EngineLayer::OnAttach() {
-
-    // Init Physics
-    gResources->gPhysicsSystem.start();
-    gResources->gPhysicsSystem.getPhysicsWorld()->setEventListener(&gResources->m_collisionListener);
-
+void EngineLayer::OnAttach() 
+{
     // Init 3D Renderer
     Engine::Renderer3D::init(262144, 262144, 262144);
 

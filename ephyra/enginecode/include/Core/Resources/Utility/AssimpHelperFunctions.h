@@ -27,7 +27,7 @@ namespace Engine {
 		}
 
 		glm::quat AssimpToGLMQuat(const aiQuaternion& ai_quat) {
-			return glm::quat(ai_quat.x, ai_quat.y, ai_quat.z, ai_quat.w);
+			return glm::quat(ai_quat.w, ai_quat.x, ai_quat.y, ai_quat.z);
 		}
 
 		const aiNodeAnim* findNodeAnim(const aiAnimation* animation, const std::string nodeName) {
@@ -41,35 +41,29 @@ namespace Engine {
 		}
 
 		unsigned int findScalingIndex(float AnimationTime, const aiNodeAnim* pNodeAnim) {
-			assert(pNodeAnim->mNumScalingKeys > 0);
 			for (unsigned int i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++) {
 				if (AnimationTime < float(pNodeAnim->mScalingKeys[i + 1].mTime)) {
 					return i;
 				}
 			}
-			assert(0);
 			return 0;
 		}
 
 		unsigned int findRotationIndex(float AnimationTime, const aiNodeAnim* pNodeAnim) {
-			assert(pNodeAnim->mNumRotationKeys > 0);
 			for (unsigned int i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++) {
 				if (AnimationTime < float(pNodeAnim->mRotationKeys[i + 1].mTime)) {
 					return i;
 				}
 			}
-			assert(0);
 			return 0;
 		}
 
 		unsigned int findPositionIndex(float AnimationTime, const aiNodeAnim* pNodeAnim) {
-			assert(pNodeAnim->mNumPositionKeys > 0);
 			for (unsigned int i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++) {
 				if (AnimationTime < float(pNodeAnim->mPositionKeys[i + 1].mTime)) {
 					return i;
 				}
 			}
-			assert(0);
 			return 0;
 		}
 

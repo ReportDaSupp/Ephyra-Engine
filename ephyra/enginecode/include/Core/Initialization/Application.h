@@ -6,7 +6,6 @@
 #include <src/entt/entt.hpp>
 
 #include "Core/Initialization/Window.h"
-#include "Core/Resources/Utility/Audio2D.h"
 #include "Core/Resources/Utility/CameraFPS.h"
 #include "Core/Resources/Utility/LayerStack.h"
 #include "Core/Systems/Utility/Log.h"
@@ -32,7 +31,6 @@ namespace Engine {
 		Application(); //!< Constructor
 
 		std::shared_ptr<Log> m_logSystem;
-		std::shared_ptr<audioSystem2D> m_audioSystem2D; //<! 2D audio system 
 		std::shared_ptr<Timer> m_timer;
 
 		std::shared_ptr<System> m_windowsSystem;

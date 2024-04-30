@@ -259,14 +259,6 @@ void ImGuiLayer::OnRender() {
                         glm::mat4 S = glm::scale(glm::mat4(1.0), transformation.Scale);
 
                         transformation.Transform = T * R * S;
-                        if (gResources->m_registry.all_of<Engine::RigidBodyComponent>(asset))
-                        {
-                            auto& rbc = gResources->m_registry.get<Engine::RigidBodyComponent>(asset);
-                            reactphysics3d::Transform transform;
-                            transform.setPosition({ transformation.Translation.x,  transformation.Translation.y,  transformation.Translation.z });
-                            transform.setOrientation({ transformation.Rotation.x, transformation.Rotation.y, transformation.Rotation.z, transformation.Rotation.w });
-                            rbc.m_body->setTransform(transform);
-                        }
                     }
                     if (gResources->m_registry.all_of<Engine::EmmissiveComponent>(asset))
                     {
@@ -596,6 +588,7 @@ void ImGuiLayer::OnRender() {
                             {
                                 safeName = false;
                             }
+
                         if (safeName)
                         {
                             auto asset = gResources->m_registry.create();
@@ -606,8 +599,6 @@ void ImGuiLayer::OnRender() {
                             Translation = { 0, 0, 0 };
                             Rotation = { 0, 0, 0 };
                             Scale = { 1, 1, 1 };
-                            //gResources->m_registry.emplace<Engine::RigidBodyComponent>(asset, asset, rp3d::BodyType::STATIC);
-                            //gResources->m_registry.emplace<Engine::BoxColliderComponent>(asset, asset, glm::vec3(88.f, 1.0f, 68.f));
                         }
                     }
                 }
@@ -630,8 +621,6 @@ void ImGuiLayer::OnRender() {
                         Translation = { 0, 0, 0 };
                         Rotation = { 0, 0, 0 };
                         Scale = { 1, 1, 1 };
-                        //gResources->m_registry.emplace<Engine::RigidBodyComponent>(asset, asset, rp3d::BodyType::STATIC);
-                        //gResources->m_registry.emplace<Engine::BoxColliderComponent>(asset, asset, glm::vec3(88.f, 1.0f, 68.f));
                     }
                 }
                 ImGui::EndMenu();

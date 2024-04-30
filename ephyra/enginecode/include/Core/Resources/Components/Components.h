@@ -17,8 +17,7 @@ namespace Engine
 		Undefined = 0,
 		Render2D,
 		Render3D,
-		Light,
-		Physics
+		Light
 	};
 
 	// Loaded
@@ -88,16 +87,6 @@ namespace Engine
 
 	};
 
-	struct CameraComponent
-	{
-		std::shared_ptr<Camera> CameraRef;
-		glm::vec3 relOffset;
-
-		CameraComponent() = default;
-		CameraComponent(const CameraComponent&) = default;
-		CameraComponent(const std::shared_ptr<Camera>& cam, glm::vec3 offset) : CameraRef(cam), relOffset(offset) {};
-	};
-
 	struct EmmissiveComponent {
 		glm::vec3 Color;
 		glm::vec3 Position;
@@ -106,88 +95,6 @@ namespace Engine
 		EmmissiveComponent(const EmmissiveComponent&) = default;
 		EmmissiveComponent(glm::vec3 color, glm::vec3 relPosition) : Color(color), Position(relPosition) {}
 
-	};
-
-	struct RigidBodyComponent
-	{
-		rp3d::RigidBody* m_body;
-		rp3d::BodyType m_bodyType;
-
-		RigidBodyComponent() = default;
-		RigidBodyComponent(entt::entity entity, rp3d::BodyType bt)
-		{
-			m_bodyType = bt;
-			auto& tc = ResourceManager::getInstance()->m_registry.get<TransformComponent>(entity);
-
-			rp3d::Vector3 initialPosition = rp3d::Vector3(tc.Translation.x, tc.Translation.y, tc.Translation.z);
-			rp3d::Quaternion initialOrientation = rp3d::Quaternion(tc.Rotation.x, tc.Rotation.y, tc.Rotation.z, tc.Rotation.w);
-			rp3d::Transform initialTransform = rp3d::Transform(initialPosition, initialOrientation);
-
-			auto pWorld = ResourceManager::getInstance()->gPhysicsSystem.getPhysicsWorld();
-
-			m_body = pWorld->createRigidBody(initialTransform);
-			m_body->setType(bt);
-			m_body->setUserData((void*)entt::to_integral(entity));
-			m_body->setMass(1.0f);
-		}
-	};
-
-	struct BoxColliderComponent
-	{
-		rp3d::BoxShape* shape;
-		rp3d::Collider* collider;
-
-		glm::vec3 halfExtents;
-
-		BoxColliderComponent(entt::entity entity, const glm::vec3& halfextents)
-		{
-			halfExtents = halfextents;
-			auto& rbc = ResourceManager::getInstance()->m_registry.get<RigidBodyComponent>(entity);
-			auto& pCommon = ResourceManager::getInstance()->gPhysicsSystem.getPhysicsCommon();
-			shape = pCommon.createBoxShape(rp3d::Vector3(halfextents.x, halfextents.y, halfextents.z));
-			collider = rbc.m_body->addCollider(shape, rp3d::Transform::identity());
-		}
-	};
-
-	struct SphereColliderComponent
-	{
-		rp3d::SphereShape* shape;
-		rp3d::Collider* collider;
-
-		float colliderRadius;
-
-		SphereColliderComponent(entt::entity entity, float radius)
-		{
-			colliderRadius = radius;
-			auto& rbc = ResourceManager::getInstance()->m_registry.get<RigidBodyComponent>(entity);
-			auto& pCommon = ResourceManager::getInstance()->gPhysicsSystem.getPhysicsCommon();
-			shape = pCommon.createSphereShape(rp3d::decimal(radius));
-			collider = rbc.m_body->addCollider(shape, rp3d::Transform::identity());
-		}
-	};
-
-	struct CapsuleColliderComponent
-	{
-		rp3d::CapsuleShape* shape;
-		rp3d::Collider* collider;
-
-		float colliderRadius;
-		float colliderHeight;
-
-		CapsuleColliderComponent(entt::entity entity, float radius, float height)
-		{
-			colliderRadius = radius;
-			colliderHeight = height;
-			auto& rbc = ResourceManager::getInstance()->m_registry.get<RigidBodyComponent>(entity);
-			auto& pCommon = ResourceManager::getInstance()->gPhysicsSystem.getPhysicsCommon();
-			shape = pCommon.createCapsuleShape(rp3d::decimal(radius), rp3d::decimal(height));
-			collider = rbc.m_body->addCollider(shape, rp3d::Transform::identity());
-		}
-	};
-
-	struct AudioSourceComponent
-	{
-		// To Be Implemented With 3D Audio
 	};
 
 	// Loaded

@@ -74,7 +74,7 @@ void main()
     boneTransform += boneMatrices[int(a_boneIndices[2])] * a_boneWeights[2];
     boneTransform += boneMatrices[int(a_boneIndices[3])] * a_boneWeights[3];
 
-    if (boneTransform == glm::mat4(0.f))
+    if (boneTransform == mat4(0.f))
     {
         mat4 MVP = u_projection * u_view * model;
 	    worldPos = vec3(model * vec4(a_vertexPosition, 1.0));
@@ -132,6 +132,14 @@ void main()
 {
     for(int i = 0; i < 3; i++)
     {
+        int v1ID = int(mod(i, 3));
+        int v2ID = int(mod(i+1, 3));
+        int v3ID = int(mod(i+2, 3));
+
+        vec3 edge1 = gl_in[v2ID].gl_Position.xyz - gl_in[v1ID].gl_Position.xyz;
+        vec3 edge2 = gl_in[v3ID].gl_Position.xyz - gl_in[v1ID].gl_Position.xyz;
+        vec3 vNormal = normalize(cross(edge1, edge2));
+
         vec3 tangent, bitangent;
 
         vec3 helper = (abs(norm[i].x) > 0.99) ? vec3(0, 1, 0) : vec3(1, 0, 0);
@@ -144,7 +152,7 @@ void main()
         gl_Position = gl_in[i].gl_Position;
         gworldPos = worldPos[i];
         texCoord = texCoords[i];
-        normal = norm[i];
+        normal = vNormal;
         tint = tints[i];
         texAlbedo = Albedo[i];
         texMetallic = Metallic[i];
@@ -241,12 +249,12 @@ void main()
     float texScale;
     if (scale == 1.0)
     {
-    float scaleX = length(vec3(Model[0].x, Model[1].x, Model[2].x));
-    float scaleY = length(vec3(Model[0].y, Model[1].y, Model[2].y));
-    float scaleZ = length(vec3(Model[0].z, Model[1].z, Model[2].z));
-    texScale = 1/min(min(scaleX, scaleY), scaleZ);
+        float scaleX = length(vec3(Model[0].x, Model[1].x, Model[2].x));
+        float scaleY = length(vec3(Model[0].y, Model[1].y, Model[2].y));
+        float scaleZ = length(vec3(Model[0].z, Model[1].z, Model[2].z));
+        texScale = 1/min(min(scaleX, scaleY), scaleZ);
 
-    newTexCoords = calculateTriplanarTexCoords(gworldPos, texScale);
+        newTexCoords = calculateTriplanarTexCoords(gworldPos, texScale);
     }
     else
     {
@@ -261,7 +269,15 @@ void main()
     float roughness = texture(u_texData[texRoughness], newTexCoords).r;
     float ao = texture(u_texData[texAo], newTexCoords).r;
     vec3 Normal = texture(u_texData[texNormal], newTexCoords).rgb;
-    Normal = normalize(TBNMat * (Normal * 2.0 - 1.0));
+    if (!(Normal == vec3(1,1,1)))
+        Normal = normalize(TBNMat * (Normal * 2.0 - 1.0));
+    else
+    {
+        albedo = vec3(0.7, 0.3, 0.3);
+        metallic = 0.5;
+        roughness = 0.5;
+        Normal = normalize(normal);
+    }
 
 	vec3 N = Normal;
     vec3 V = normalize(gworldPos - u_viewPos);

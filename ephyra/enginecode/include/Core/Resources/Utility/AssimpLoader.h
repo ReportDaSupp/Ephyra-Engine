@@ -68,13 +68,13 @@ namespace Engine {
 				glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0f), scalingVec);
 
 				glm::quat rotationQuat = interpolateRotation(glm::mod((timeInSeconds * (float)sceneMapping[ID]->mAnimations[0]->mTicksPerSecond), (float)sceneMapping[ID]->mAnimations[0]->mDuration), nodeAnim);
-				glm::mat4 rotationMatrix = glm::mat4_cast(rotationQuat);
+				glm::mat4 rotationMatrix = glm::mat4(rotationQuat);
 
 				glm::vec3 translationVec = interpolatePosition(glm::mod(timeInSeconds * (float)sceneMapping[ID]->mAnimations[0]->mTicksPerSecond, (float)sceneMapping[ID]->mAnimations[0]->mDuration), nodeAnim);
 				glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), translationVec);
 
 				// Combine the transformations
-				nodeTransformation *= translationMatrix * rotationMatrix * scalingMatrix;
+				nodeTransformation *= translationMatrix * rotationMatrix; //* scalingMatrix;
 			}
 
 			glm::mat4 globalTransformation =  parentTransform * nodeTransformation;
@@ -113,6 +113,11 @@ namespace Engine {
 			for (unsigned int i = 0; i < mesh->mNumBones; i++) {
 				unsigned int boneIndex = 0;
 				std::string boneName = mesh->mBones[i]->mName.C_Str();
+
+				if (AssimpToGLMMatrix(mesh->mBones[i]->mOffsetMatrix) == glm::mat4(1.0f))
+				{
+					break;
+				}
 
 				if (boneMapping.find(boneName) == boneMapping.end()) {
 					// Allocate an index for a new bone
@@ -232,10 +237,11 @@ namespace Engine {
 						tag.resize(tag.rfind('.'));
 						std::shared_ptr<Texture> tmp;
 						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
-						tmpMesh.diffuseTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
+						if (!(tmp->getHeightf() > 8192))
+							tmpMesh.diffuseTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
 					}
 
-					if (type == aiTextureType_SPECULAR || type == aiTextureType_DIFFUSE_ROUGHNESS)
+					if (type == aiTextureType_SPECULAR)
 					{
 						std::string tempFilepath = filePath;
 						tempFilepath.resize(filePath.rfind('/') + 1);
@@ -246,10 +252,11 @@ namespace Engine {
 						tag.resize(tag.rfind('.'));
 						std::shared_ptr<Texture> tmp;
 						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
-						tmpMesh.specularTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
+						if (!(tmp->getHeightf() > 8192))
+							tmpMesh.specularTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
 					}
 
-					if (type == aiTextureType_AMBIENT_OCCLUSION)
+					if (type == aiTextureType_AMBIENT)
 					{
 						std::string tempFilepath = filePath;
 						tempFilepath.resize(filePath.rfind('/') + 1);
@@ -260,7 +267,8 @@ namespace Engine {
 						tag.resize(tag.rfind('.'));
 						std::shared_ptr<Texture> tmp;
 						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
-						tmpMesh.ambientTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
+						if (!(tmp->getHeightf() > 8192))
+							tmpMesh.ambientTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
 
 					}
 
@@ -275,7 +283,8 @@ namespace Engine {
 						tag.resize(tag.rfind('.'));
 						std::shared_ptr<Texture> tmp;
 						tmp = std::shared_ptr<Texture>(tmp->create((tempFilepath + fn).c_str()));
-						tmpMesh.normalTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
+						if (!(tmp->getHeightf() > 8192))
+							tmpMesh.normalTexture = gResources->addAsset(mesh->mName.C_Str() + tag, SceneAsset::Type::Texture, tmp);
 					}
 
 				}
@@ -307,7 +316,6 @@ namespace Engine {
 
 			for (int i = 0; i < 5; i++)
 				textures[i] = RendererCommon::defaultTexture;
-
 
 			if (tmpMesh.diffuseTexture)
 			{
@@ -376,6 +384,7 @@ namespace Engine {
 			
 			if (sceneMapping.find(id) == sceneMapping.end()) {
 				const aiScene* temp = importer[gResources->fileCount].ReadFile(filepath,
+					aiProcess_SortByPType |
 					aiProcess_Triangulate |
 					aiProcess_FlipUVs |
 					aiProcess_GenSmoothNormals |

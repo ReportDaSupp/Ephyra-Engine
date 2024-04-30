@@ -62,10 +62,6 @@ namespace Engine
                         {"FilePath", {entity.LoaderPath}}
                     };
                 }
-
-                // SpriteRendererComponent
-
-                // CameraComponent
                 
                 // EmmissiveComponent
                 if (registry.all_of<EmmissiveComponent>(entityID)) {
@@ -75,41 +71,6 @@ namespace Engine
                         {"Color", {entity.Color.x, entity.Color.y, entity.Color.z}}
                     };
                 }
-
-                // RigidBodyComponent
-                if (registry.all_of<RigidBodyComponent>(entityID)) {
-                    auto& entity = registry.get<RigidBodyComponent>(entityID);
-                    entityJson["RigidBodyComponent"] = {
-                        {"BodyType", {entity.m_bodyType}}
-                    };
-                }
-
-                // BoxColliderComponent
-                if (registry.all_of<BoxColliderComponent>(entityID)) {
-                    auto& entity = registry.get<BoxColliderComponent>(entityID);
-                    entityJson["BoxColliderComponent"] = {
-                        {"HalfExtents", {entity.halfExtents.x, entity.halfExtents.y, entity.halfExtents.z}}
-                    };
-                }
-
-                // SphereColliderComponent
-                if (registry.all_of<SphereColliderComponent>(entityID)) {
-                    auto& entity = registry.get<SphereColliderComponent>(entityID);
-                    entityJson["SphereColliderComponent"] = {
-                        {"Radius", {entity.colliderRadius}}
-                    };
-                }
-
-                // CapsuleColliderComponent
-                if (registry.all_of<CapsuleColliderComponent>(entityID)) {
-                    auto& entity = registry.get<CapsuleColliderComponent>(entityID);
-                    entityJson["CapsuleColliderComponent"] = {
-                        {"Radius", {entity.colliderRadius}},
-                        {"Height", {entity.colliderHeight}}
-                    };
-                }
-
-                // AudioSourceComponent
                 
                 // TagComponent
                 if (registry.all_of<TagComponent>(entityID)) {
@@ -182,10 +143,6 @@ namespace Engine
                         registry.emplace<MeshRendererComponent>(entity, meshRendererComp["FilePath"][0], ID);
                     }
 
-                    // SpriteRendererComponent
-
-                    // CameraComponent
-
                     // EmmissiveComponent
                     if (entityJson.contains("EmmissiveComponent")) {
                         auto& transComp = entityJson["EmmissiveComponent"];
@@ -193,33 +150,6 @@ namespace Engine
                         glm::vec3 C = glm::vec3(transComp["Color"][0], transComp["Color"][1], transComp["Color"][2]);
                         registry.emplace<EmmissiveComponent>(entity, C, T);
                     }
-
-                    // RigidBodyComponent
-                    if (entityJson.contains("RigidBodyComponent")) {
-                        auto& rigidBodyComp = entityJson["RigidBodyComponent"];
-                        registry.emplace<RigidBodyComponent>(entity, entity, rigidBodyComp["BodyType"][0]);
-                    }
-
-                    // BoxColliderComponent
-                    if (entityJson.contains("BoxColliderComponent")) {
-                        auto& boxColliderComp = entityJson["BoxColliderComponent"];
-                        glm::vec3 hExtents = glm::vec3(boxColliderComp["HalfExtents"][0], boxColliderComp["HalfExtents"][1], boxColliderComp["HalfExtents"][2]);
-                        registry.emplace<BoxColliderComponent>(entity, entity, hExtents);
-                    }
-
-                    // SphereColliderComponent
-                    if (entityJson.contains("SphereColliderComponent")) {
-                        auto& sphereColliderComp = entityJson["SphereColliderComponent"];
-                        registry.emplace<SphereColliderComponent>(entity, entity, sphereColliderComp["Radius"][0]);
-                    }
-
-                    // CapsuleColliderComponent
-                    if (entityJson.contains("CapsuleColliderComponent")) {
-                        auto& capsuleColliderComp = entityJson["CapsuleColliderComponent"];
-                        registry.emplace<CapsuleColliderComponent>(entity, entity, capsuleColliderComp["Radius"][0], capsuleColliderComp["Height"][0]);
-                    }
-
-                    // AudioSourceComponent
 
                     // StateComponent
                     if (entityJson.contains("StateComponent")) {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Ephyra.h"
-#include "Core/Systems/Utility/PhysicsSystem.h"
+
 #include "Core/Rendering/API/Global/RenderCommands.h"
 #include "Core/Rendering/API/Global/RendererCommon.h"
 
@@ -142,14 +142,6 @@ namespace Engine
 
         // Registry
         entt::registry m_registry;
-
-        // React3D
-        friend class CollisionListener;
-        PhysicsSystem gPhysicsSystem;
-        CollisionListener m_collisionListener;
-
-        // Audio 2D
-        std::shared_ptr<audioSystem2D> gSoundPlayer;
 
     private:
 

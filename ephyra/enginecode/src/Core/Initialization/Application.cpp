@@ -27,10 +27,6 @@ namespace Engine
 		m_timer.reset(new ChronoTimer);
 		m_timer->start();
 
-		//start audio systems
-		m_audioSystem2D.reset(new audioSystem2D);
-		m_audioSystem2D->start();
-
 		// reset windows system
 		m_windowsSystem.reset(new GLFWSystem);
 
@@ -82,10 +78,6 @@ namespace Engine
 
 	Application::~Application()
 	{
-		//stop audio system
-		m_audioSystem2D->stop();
-
-		//stop everything else - might need to change or remove for merge
 		m_windowsSystem->stop();
 		m_logSystem->stop();
 
