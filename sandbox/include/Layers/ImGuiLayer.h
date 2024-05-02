@@ -519,7 +519,28 @@ void ImGuiLayer::OnRender() {
     }
     if (gResources->eHints)
     {
+        if (ImGui::Begin("Tutorial Information", &gResources->eHints))
+        {
+            ImGui::TextColored(TitleColor, "Animated Mech Model");
+            ImGui::TextColored(SubTitleColor, "./assets/models/Mech/Mech.fbx");
+            ImGui::TextColored(TitleColor, "Static Shelf Model");
+            ImGui::TextColored(SubTitleColor, "./assets/models/Shelf/Shelf.obj");
+            ImGui::TextColored(TitleColor, "Static Roof Model");
+            ImGui::TextColored(SubTitleColor, "./assets/models/Roof/Floor.obj");
+            ImGui::TextColored(TitleColor, "Static Door Model");
+            ImGui::TextColored(SubTitleColor, "./assets/models/Door/Door.obj");
+            ImGui::TextColored(TitleColor, "Static Floor Model");
+            ImGui::TextColored(SubTitleColor, "./assets/models/Floor/Floor.obj");
+            ImGui::Text("");
+            ImGui::TextColored(TitleColor, "Base Test Scene");
+            ImGui::TextColored(SubTitleColor, "TestScene.eph");
+            ImGui::TextColored(TitleColor, "Organised Scene");
+            ImGui::TextColored(SubTitleColor, "MechScene.eph");
+            ImGui::TextColored(TitleColor, "Animated Mech Scene");
+            ImGui::TextColored(SubTitleColor, "MechScene2.eph");
 
+        }
+        ImGui::End();
     }
 
     if (ImGui::BeginMainMenuBar())

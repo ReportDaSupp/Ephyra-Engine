@@ -126,7 +126,7 @@ namespace Engine
         bool eHierarchy = true;
         bool eAssets= true;
         bool eKeyframe = true;
-        bool eHints = false;
+        bool eHints = true;
 
         bool eIntroMessage = true;
 
