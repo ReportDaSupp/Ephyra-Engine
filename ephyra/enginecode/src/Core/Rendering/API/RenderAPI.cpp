@@ -17,10 +17,9 @@
 
 namespace Engine
 {
+	PostProcessing* postProcessor;
 
 	RenderAPI::API RenderAPI::s_API = RenderAPI::API::OpenGL;
-
-	PostProcessing* postProcessor;
 
 	PostProcessing* PostProcessing::create()
 	{

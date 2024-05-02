@@ -15,7 +15,6 @@ Engine::OpenGLPostProcessing::OpenGLPostProcessing()
     const char* ToneMappingShaderSource = "assets/shaders/postProcessing/toneMapping.glsl";
     const char* VignetteShaderSource = "assets/shaders/postProcessing/vignette.glsl";
     const char* DOFShaderSource = "assets/shaders/postProcessing/depthOfField.glsl";
-    const char* RetroGradeShaderSource = "assets/shaders/postProcessing/retroGrade.glsl";
     const char* CleanUpShaderSource = "assets/shaders/postProcessing/cleanUp.glsl";
 
     LoadVolumetricShader(VolumetricShaderSource);
@@ -23,7 +22,6 @@ Engine::OpenGLPostProcessing::OpenGLPostProcessing()
     LoadToneMappingShader(ToneMappingShaderSource);
     LoadVignetteShader(VignetteShaderSource);
     LoadDOFShader(DOFShaderSource);
-    LoadRetroGradeShader(RetroGradeShaderSource);
     LoadCleanUpShader(CleanUpShaderSource);
     
     BrightColorTexture.reset(Texture::create(SCR_WIDTH, SCR_HEIGHT, 4, nullptr));
@@ -36,7 +34,6 @@ Engine::OpenGLPostProcessing::OpenGLPostProcessing()
     SoftShadowColorTexture.reset(Texture::create(SCR_WIDTH, SCR_HEIGHT, 4, nullptr));
     VignetteColorTexture.reset(Texture::create(SCR_WIDTH, SCR_HEIGHT, 4, nullptr));
     VolumetricColorTexture.reset(Texture::create(SCR_WIDTH, SCR_HEIGHT, 4, nullptr));
-    RetroGradeColorTexture.reset(Texture::create(SCR_WIDTH, SCR_HEIGHT, 4, nullptr));
 }
 
 Engine::OpenGLPostProcessing::~OpenGLPostProcessing()
@@ -190,23 +187,6 @@ uint32_t Engine::OpenGLPostProcessing::ApplyVolumetricEffect(uint32_t depthTextu
     return VolumetricColorTexture->getID();
 }
 
-uint32_t Engine::OpenGLPostProcessing::ApplyRetroGradeEffect(uint32_t sceneTexture, float frameCount)
-{
-    glUseProgram(RetroGradeShaderProgram->getID());
-
-    glBindImageTexture(0, sceneTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-    glBindImageTexture(1, RetroGradeColorTexture->getID(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-
-    RetroGradeShaderProgram->uploadFloat2("screenSize", glm::vec2((float)SCR_WIDTH, (float)SCR_HEIGHT));
-    RetroGradeShaderProgram->uploadFloat("time", frameCount);
-
-    glDispatchCompute(ceil((float)SCR_WIDTH / 16), ceil((float)SCR_HEIGHT / 16), 1);
-
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-    return RetroGradeColorTexture->getID();
-}
-
 void Engine::OpenGLPostProcessing::updateColorFBO(uint32_t processedTexture, uint32_t outputTexture)
 {
     glUseProgram(CleanUpShaderProgram->getID());
@@ -246,11 +226,6 @@ void Engine::OpenGLPostProcessing::LoadVignetteShader(const char* shaderSource)
 void Engine::OpenGLPostProcessing::LoadDOFShader(const char* shaderSource)
 {
     DOFShaderProgram.reset(Engine::Shader::create(shaderSource));
-}
-
-void Engine::OpenGLPostProcessing::LoadRetroGradeShader(const char* shaderSource)
-{
-    RetroGradeShaderProgram.reset(Engine::Shader::create(shaderSource));
 }
 
 void Engine::OpenGLPostProcessing::LoadCleanUpShader(const char* shaderSource)

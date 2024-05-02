@@ -266,8 +266,6 @@ namespace Engine
 			texID = RendererCommon::postProcessor->ApplyToneMappingEffect(texID);
 		if (enabledEffects[4])
 			texID = RendererCommon::postProcessor->ApplyVignetteEffect(texID);
-		if (enabledEffects[5])
-			texID = RendererCommon::postProcessor->ApplyRetroGradeEffect(texID, RendererCommon::frameCount);
 
 		RendererCommon::postProcessor->updateColorFBO(texID, RendererCommon::colorFBOTexture->getID());
 	}
@@ -394,6 +392,12 @@ namespace Engine
 	{
 		// Use Shader
 		shader->useShader(s_data->VAO->getRenderID());
+
+		for (int i = 0; i < 100; i++)
+		{
+			std::string name = "boneMatrices[" + std::to_string(i) + "]";
+			shader->uploadMat4(name.c_str(), boneManager.getBoneMatrices()[i]);
+		}
 
 		// Upload Tex Units
 		shader->uploadInt("ImmediateMode", 0);

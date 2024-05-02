@@ -1,110 +1,16 @@
 {
     "entities": [
         {
-            "MeshRendererComponent": {
-                "FilePath": [
-                    "./assets/models/Mech/Mech.fbx"
-                ]
-            },
-            "StateComponent": {
-                "State": [
-                    true
-                ]
-            },
-            "TagComponent": {
-                "Tag": [
-                    "Mech"
-                ],
-                "Type": [
-                    2
-                ]
-            },
-            "TransformComponent": {
-                "Euler": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "Scale": [
-                    0.10000000149011612,
-                    0.10000000149011612,
-                    0.10000000149011612
-                ],
-                "Translation": [
-                    0.0,
-                    0.0,
-                    -3.700000047683716
-                ]
-            },
-            "id": 4
-        },
-        {
-            "EmmissiveComponent": {
-                "Color": [
-                    1.0,
-                    1.0,
-                    74.75
-                ],
-                "Position": [
-                    6.599999904632568,
-                    3.25,
-                    0.0
-                ]
-            },
-            "StateComponent": {
-                "State": [
-                    true
-                ]
-            },
-            "TagComponent": {
-                "Tag": [
-                    "Light3"
-                ],
-                "Type": [
-                    3
-                ]
-            },
-            "id": 3
-        },
-        {
-            "EmmissiveComponent": {
-                "Color": [
-                    1.0,
-                    51.599998474121094,
-                    0.699999988079071
-                ],
-                "Position": [
-                    -6.199999809265137,
-                    3.0,
-                    0.0
-                ]
-            },
-            "StateComponent": {
-                "State": [
-                    true
-                ]
-            },
-            "TagComponent": {
-                "Tag": [
-                    "Light2"
-                ],
-                "Type": [
-                    3
-                ]
-            },
-            "id": 2
-        },
-        {
             "EmmissiveComponent": {
                 "Color": [
                     30.0,
                     1.0,
-                    10.0
+                    1.0
                 ],
                 "Position": [
                     0.0,
                     2.0,
-                    0.0
+                    2.9000000953674316
                 ]
             },
             "StateComponent": {
@@ -123,21 +29,9 @@
             "id": 1
         },
         {
-            "BoxColliderComponent": {
-                "HalfExtents": [
-                    88.0,
-                    1.0,
-                    68.0
-                ]
-            },
             "MeshRendererComponent": {
                 "FilePath": [
                     "./assets/models/Floor/Floor.obj"
-                ]
-            },
-            "RigidBodyComponent": {
-                "BodyType": [
-                    0
                 ]
             },
             "StateComponent": {
@@ -171,6 +65,214 @@
                 ]
             },
             "id": 0
+        },
+        {
+            "EmmissiveComponent": {
+                "Color": [
+                    1.0,
+                    1.0,
+                    30.0
+                ],
+                "Position": [
+                    4.050000190734863,
+                    2.0,
+                    3.5
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Light3"
+                ],
+                "Type": [
+                    3
+                ]
+            },
+            "id": 3
+        },
+        {
+            "EmmissiveComponent": {
+                "Color": [
+                    1.0,
+                    30.0,
+                    1.0
+                ],
+                "Position": [
+                    -4.650000095367432,
+                    2.0,
+                    3.4000000953674316
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Light2"
+                ],
+                "Type": [
+                    3
+                ]
+            },
+            "id": 2
+        },
+        {
+            "MeshRendererComponent": {
+                "FilePath": [
+                    "./assets/models/Door/Door.obj"
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Door"
+                ],
+                "Type": [
+                    2
+                ]
+            },
+            "TransformComponent": {
+                "Euler": [
+                    0.0,
+                    -1.5499999523162842,
+                    0.0
+                ],
+                "Scale": [
+                    2.0,
+                    2.0,
+                    2.0
+                ],
+                "Translation": [
+                    -8.350000381469727,
+                    0.44999998807907104,
+                    0.0
+                ]
+            },
+            "id": 1048583
+        },
+        {
+            "MeshRendererComponent": {
+                "FilePath": [
+                    "./assets/models/Door/Door.obj"
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Door1"
+                ],
+                "Type": [
+                    2
+                ]
+            },
+            "TransformComponent": {
+                "Euler": [
+                    0.0,
+                    1.5499999523162842,
+                    0.0
+                ],
+                "Scale": [
+                    2.0,
+                    2.0,
+                    2.0
+                ],
+                "Translation": [
+                    8.100000381469727,
+                    0.44999998807907104,
+                    0.15000000596046448
+                ]
+            },
+            "id": 1048584
+        },
+        {
+            "MeshRendererComponent": {
+                "FilePath": [
+                    "./assets/models/Shelf/Shelf.obj"
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "Shelf"
+                ],
+                "Type": [
+                    2
+                ]
+            },
+            "TransformComponent": {
+                "Euler": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    15.0,
+                    18.0,
+                    15.0
+                ],
+                "Translation": [
+                    -0.15000000596046448,
+                    -3.450000047683716,
+                    -1.649999976158142
+                ]
+            },
+            "id": 9
+        },
+        {
+            "MeshRendererComponent": {
+                "FilePath": [
+                    "./assets/models/Roof/Floor.obj"
+                ]
+            },
+            "StateComponent": {
+                "State": [
+                    true
+                ]
+            },
+            "TagComponent": {
+                "Tag": [
+                    "BackWall"
+                ],
+                "Type": [
+                    2
+                ]
+            },
+            "TransformComponent": {
+                "Euler": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Scale": [
+                    8.0,
+                    2.5,
+                    0.10000000149011612
+                ],
+                "Translation": [
+                    0.15000000596046448,
+                    2.75,
+                    -1.4500000476837158
+                ]
+            },
+            "id": 10
         }
     ]
 }

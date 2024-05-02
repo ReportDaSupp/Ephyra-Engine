@@ -120,15 +120,13 @@ namespace Engine
         bool eBloom = true;
         bool eVignette = false;
         bool eToneMapping = true;
-        bool eRG = false;
-        bool ePhysics = true;
 
         bool eViewport = true;
         bool eTextureViewer = false;
         bool eHierarchy = true;
         bool eAssets= true;
         bool eKeyframe = true;
-        bool eFileDialog = false;
+        bool eHints = false;
 
         bool eIntroMessage = true;
 

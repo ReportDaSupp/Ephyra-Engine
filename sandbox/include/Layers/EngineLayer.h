@@ -190,7 +190,7 @@ void EngineLayer::OnRender(){
         }
     }
 
-    bool enabledEffects[16] = { gResources->eDOF, gResources->eVolumetric, gResources->eBloom, gResources->eToneMapping, gResources->eVignette,gResources->eRG,1,1,1,1,1,1,1,1,1,1 };
+    bool enabledEffects[16] = { gResources->eDOF, gResources->eVolumetric, gResources->eBloom, gResources->eToneMapping, gResources->eVignette,1,1,1,1,1,1,1,1,1,1,1 };
 
     Engine::Renderer3D::end(enabledEffects);
 }

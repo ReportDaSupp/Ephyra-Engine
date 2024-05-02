@@ -6,11 +6,6 @@
 namespace Engine
 {
 
-    // Not yet implemented classes (To be created with ECS)
-    class ResourceManager;
-    class Renderer;
-    class CameraController;
-
     class Layer {
     public:
         Layer(const std::string& name) { m_name = name; };
@@ -32,8 +27,5 @@ namespace Engine
 
     protected:
         std::string m_name;
-        std::shared_ptr<ResourceManager> m_resources;
-        std::shared_ptr<Renderer> m_renderer;
-        std::shared_ptr<CameraController> m_camera;
     };
 }
