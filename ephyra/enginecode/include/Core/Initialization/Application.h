@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <glfw/glfw3.h>
-#include <reactphysics3d/reactphysics3d.h>
 #include <src/entt/entt.hpp>
 
 #include "Core/Initialization/Window.h"

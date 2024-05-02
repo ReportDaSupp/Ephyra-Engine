@@ -46,9 +46,7 @@ project "Ephyra"
 		"vendor/STBimage",
 		"vendor/freetype2/include",
 		"vendor/json/single_include/nlohmann",
-		"vendor/enTT",
-		"vendor/soLoud/include",
-		"vendor/react3d/include"
+		"vendor/enTT"
 	}
 	
 	links 
@@ -56,9 +54,7 @@ project "Ephyra"
 		"Assimp",
 		"GLFW",
 		"Glad",
-		"Freetype",
-		"SoLoud",
-		"ReactPhysics3d"
+		"Freetype"
 	}
 	
 	filter "system:windows"
@@ -109,9 +105,7 @@ project "Sandbox"
 		"vendor/spdlog/include",
 		"vendor/freetype2/include",
 		"vendor/json/single_include/nlohmann",
-		"vendor/enTT",
-		"vendor/soLoud/include",
-		"vendor/react3d/include"
+		"vendor/enTT"
 	}
 
 	links
@@ -141,9 +135,7 @@ project "Sandbox"
 group "Vendor"
 
 	include "vendor/glfw"
-	include "vendor/googletest"
 	include "vendor/Glad"
 	include "vendor/freetype2"
 	include "vendor/Assimp"
-	include "vendor/soLoud"
-	include "vendor/react3d"
+
